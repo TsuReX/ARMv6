@@ -1,11 +1,9 @@
-asm: asm.o
-	gcc -o asm asm.o -nostdlib
+program: ./build/program.o
+	gcc -o ./build/program ./build/program.o -nostdlib
 	
-	
-asm.o: asm.s
-	nasm -f elf64 asm.s -g
+./build/program.o: program.s
+	mkdir -p build
+	nasm -f elf64 program.s -g -o ./build/program.o
 
-
-	
 clean: 
-	rm asm.o asm
+	rm -r ./build
