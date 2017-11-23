@@ -18,9 +18,8 @@ section .text					;section declaration
 ;*************************************************
 
 printstr:						;write our string to stdout
-
-	POP		rdx					;third argument: message length
-    pop     rcx					;second argument: pointer to message to write
+	mov		rcx, [rsp+0x8]		;get first operand value from stack
+	mov		rdx, [rsp+0x10]		;get second operand value from stack
     mov     rbx,1				;first argument: file handle (stdout)
     mov     rax,4				;system call number (sys_write)
     int     0x80				;call kernel
@@ -30,10 +29,9 @@ printstr:						;write our string to stdout
 ;*************************************************
 
 calclen:
-	pop 	rax					;restore from stack pointer to data
+	mov		rax, [rsp+0x8]		;get operand value from stack
 	mov		rbx, rax
-
-nextchar:						; this is the same as lesson3
+nextchar:						;this is the same as lesson3
     cmp     byte [rax], 0
     jz      finished
     inc     rax
@@ -47,15 +45,15 @@ finished:
 
 _start:
 	; cdecl calling convention begin
-;	push    rbp       			;save old call frame
-;	mov     rbp, rsp			;to avoid problem with stack pointer
+	push    rbp       			;save old call frame
+	mov     rbp, rsp			;to avoid problem with stack pointer
 
 	mov		rax, msg			;get data pointer
 	push	rax					;save data pointer in stack
 	call	calclen				;return value shuld be stored in rax
 
-;	mov		rsp,rbp				;restore old
-;	pop		rbp					;call frame
+	mov     rsp, rbp			;restore old call frame
+	pop		rbp					;
 	; cdecl calling convention end
 
 	; cdecl calling convention begin
@@ -67,8 +65,8 @@ _start:
 	push	rbx					;
 	call	printstr			;operands are: data pointer, length in bytes
 
-	mov		rsp,rbp				;restore old
-	pop		rbp					;call frame
+	mov     rsp, rbp			;restore old call frame
+	pop		rbp					;
 	; cdecl calling convention end
 
 								;and exit
