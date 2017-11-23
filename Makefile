@@ -1,5 +1,5 @@
 program: ./build/program.o
-	gcc -o ./build/program ./build/program.o -nostdlib
+	gcc -g -o ./build/program ./build/program.o -nostdlib
 	
 ./build/program.o: ./src/program.s
 	mkdir -p build
