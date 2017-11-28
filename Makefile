@@ -1,5 +1,6 @@
 program: ./build/program.o
-	gcc -g -o ./build/program ./build/program.o -nostdlib
+	#gcc -g -o ./build/program ./build/program.o -nostdlib -e entryPoint
+	ld -g -o ./build/program ./build/program.o -nostdlib -e entryPoint
 	
 ./build/program.o: ./src/program.s ./src/cdecl.c
 	mkdir -p build
@@ -7,4 +8,4 @@ program: ./build/program.o
 	gcc -c ./src/cdecl.c -o ./build/cdecl.o
 
 clean: 
-	rm -r ./build
+	rm -rf ./build
