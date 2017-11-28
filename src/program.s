@@ -1,8 +1,17 @@
 section .somesect
 	somedata dq 0xAABBCCFF
 
-section .mysection
+section mysection				;section name can be without preceding "."
 	data dd 0xDEADBEAF
+	q	db	0x51                ; просто байт 0x55
+	w	db	0x52,0x56,0x57      ; последовательно 3 байта
+	e	db	'a',0x53            ; символьная константа
+	r	db	'hello',13,10,'$'   ; это строковая константа
+	t	dw	0x1234              ; 0x34 0x12
+	y	dw	'a'                 ; 0x41 0x00 (это просто число)
+	u	dw	'ab'                ; 0x41 0x42 (символьная константа)
+	i	dw	'abc'               ; 0x41 0x42 0x43 0x00 (строка)
+	o	dd	0x12345678          ; 0x78 0x56 0x34 0x12
 
 section .data						;section declaration
 	msg db      "Hello, world!",0xa ;our dear string
