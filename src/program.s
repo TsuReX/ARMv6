@@ -76,6 +76,11 @@ entryPoint: ;Default entry point name is _start. User defined name should be poi
 			;gcc -g -o ./build/program ./build/program.o -nostdlib -e entryPoint
 			;or
 			;ld -g -o ./build/program ./build/program.o -nostdlib -e entryPoint
+
+	call	test_get_seg
+	;call	test_mdfy_ss
+	;call	test_mdfy_cs
+
 	; cdecl calling convention begin
 	push	rbp       			;save old call frame
 	mov		rbp, rsp			;to avoid problem with stack pointer
@@ -133,3 +138,21 @@ entryPoint: ;Default entry point name is _start. User defined name should be poi
 	int		0x80				;call kernel, return value is stored in rax
 
 ;*************************************************
+
+test_get_seg:
+	;mov rax, seg test_mdfy_ss
+	mov es, rax
+	mov rbx, test_mdfy_ss
+	ret
+
+test_mdfy_ss: ;it causes segmentation falut
+	mov rax, ss
+	inc rax
+	mov ss, rax
+	ret
+
+test_mdfy_cs: ;it causes segmentation falut
+	mov rax, cs
+	inc rax
+	mov cs, rax
+	ret
