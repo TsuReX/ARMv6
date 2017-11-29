@@ -1,5 +1,5 @@
 program: ./build/program.o
-	#gcc -g -o ./build/program ./build/program.o -nostdlib -e entryPoint
+#gcc -g -o ./build/program ./build/program.o -nostdlib -e entryPoint
 	ld -g -o ./build/program ./build/program.o -nostdlib -e entryPoint
 	
 ./build/program.o: ./src/program.s ./src/cdecl.c

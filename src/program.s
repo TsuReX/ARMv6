@@ -3,16 +3,15 @@ section .somesect
 	somedata dq 0xAABBCCFF
 
 section mysection				;section name can be without preceding "."
-	data dd 0xDEADBEAF
-	q	db	0x51                ; просто байт 0x55
-	w	db	0x52,0x56,0x57      ; последовательно 3 байта
-	e	db	'a',0x53            ; символьная константа
-	r	db	'hello',13,10,'$'   ; это строковая константа
-	t	dw	0x1234              ; 0x34 0x12
-	y	dw	'a'                 ; 0x41 0x00 (это просто число)
-	u	dw	'ab'                ; 0x41 0x42 (символьная константа)
-	i	dw	'abc'               ; 0x41 0x42 0x43 0x00 (строка)
-	o	dd	0x12345678          ; 0x78 0x56 0x34 0x12
+	q	db	0x51                ; | 0x51 |
+	w	db	0x52,0x56,0x57      ; | 0x52 | 0x56 | 0x57 |
+	e	db	'a',0x53            ; | 0x41 | 0x53 |
+	r	db	'hello',13,10,'$'   ; | 0x68 | 0x65 | 0x6C | 0x6C | 0x6F | 0x0D | 0x0A | 0x24 |
+	t	dw	0x1234,0x5678       ; | 0x34 | 0x12 || 0x78 | 0x56 ||
+	y	dw	'a'                 ; | 0x41 | 0x00 ||
+	u	dw	'ab'                ; | 0x41 | 0x42 ||
+	i	dw	'abc'               ; | 0x41 | 0x42 || 0x43 | 0x00 |
+	o	dd	0x12345678          ; | 0x78 | 0x56  0x34 | 0x12 ||
 
 section .bss
 	varNameByte:		resb	1	;reserve space for 1 byte
@@ -22,7 +21,6 @@ section .bss
 	varNameXPFloat:		ReSt	5	;reserve space for 5 extended precision floats
 
 	sinput:				resb	255
-
 
 section .data						;section declaration
 	;our string, or if to be simplier this's an array of bytes (db - data byte)
