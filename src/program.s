@@ -22,7 +22,9 @@ section .bss
 	varNameDWord:		RESd	3	;reserve space for 3 double words
 	varNameDPFloat:		resQ	4	;reserve space for 4 double precision floats (quad word)
 	varNameXPFloat:		ReSt	5	;reserve space for 5 extended precision floats
-
+	fst:				resq	1
+	snd:				resq	1
+	thrd:				resq	1
 	sinput:				resb	255
 
 section .data						;section declaration
@@ -42,15 +44,18 @@ entryPoint: ;Default entry point name is _start. User defined name should be poi
 			;gcc -g -o ./build/program ./build/program.o -nostdlib -e entryPoint
 			;or
 			;ld -g -o ./build/program ./build/program.o -nostdlib -e entryPoint
-
-	call	test_get_seg
+	mov		rbp, rsp
+	pop		qword [fst]
+	pop		qword [snd]
+	pop		qword [thrd]
+	;call	test_get_seg
 	;call	test_mdfy_ss
 	;call	test_mdfy_cs
 
 	; cdecl calling convention begin
 	push	rbp       			;save old call frame
 	mov		rbp, rsp			;to avoid problem with stack pointer
-	mov		rax, msg			;get data pointer
+	mov		rax, [snd]			;get data pointer
 	push	rax					;save data pointer in stack
 	call	calclen				;return value shuld be stored in rax
 	mov		rsp, rbp			;restore old call frame
@@ -61,12 +66,14 @@ entryPoint: ;Default entry point name is _start. User defined name should be poi
 	push	rbp       			;save old call frame
 	mov		rbp, rsp			;to avoid problem with stack pointer
 	push	rax					;save operands in reverse order
-	mov		rbx, msg			;
+	mov		rbx, [snd]			;
 	push	rbx					;
 	call	printstr			;operands are: data pointer, length in bytes
 	mov		rsp, rbp			;restore old call frame
 	pop		rbp					;
 	; cdecl calling convention end
+
+	jmp .end
 
 	push	rbp
 	mov		rbp, rsp
@@ -98,6 +105,7 @@ entryPoint: ;Default entry point name is _start. User defined name should be poi
 	pop		rbp					;
 	; cdecl calling convention end
 
+.end:
 								;and exit
 	mov		rbx,0				;first syscall argument: exit code
 	mov		rax,1				;system call number (sys_exit)
