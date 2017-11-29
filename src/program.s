@@ -61,12 +61,12 @@ printstr: ;function				;write our string to stdout
 calclen: ;function
 	mov		rax, [rsp+0x8]		;get operand value from stack
 	mov		rbx, rax
-nextchar:						;this is the same as lesson3
+.nextchar:						;"." before name of label means that this labes is local for calclen function
     cmp		byte [rax], 0
-    jz		finished
+    jz		.finished
     inc		rax
-    jmp		nextchar
-finished:
+    jmp		.nextchar
+.finished:
 	sub		rax, rbx
 	ret							;return from calclen, return value shuld be stored in rax
 
