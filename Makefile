@@ -1,3 +1,11 @@
+linker: ./src/linker/file1.c ./src/linker/file2.c ./src/linker/file2.c ./src/linker/linker.script
+	rm -rf ./build
+	mkdir -p ./build/linker
+	gcc -c ./src/linker/file1.c -o ./build/linker/file1.o
+	gcc -c ./src/linker/file2.c -o ./build/linker/file2.o
+	gcc -c ./src/linker/file3.c -o ./build/linker/file3.o
+	ld -T ./src/linker/linker.script -L ./build/linker -o ./build/linker/result.o
+
 program: ./build/program.o
 #	gcc -g -o ./build/program ./build/program.o -nostdlib -e entryPoint
 	ld -g -o ./build/program ./build/program.o -nostdlib -e entryPoint
