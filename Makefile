@@ -1,3 +1,10 @@
+include src/bios/arm/Makefile.inc
+
+test:
+	@echo TEST target
+#	@echo $^
+
+
 linker: ./src/linker/file1.c ./src/linker/file2.c ./src/linker/file2.c ./src/linker/linker.script
 	rm -rf ./build
 	mkdir -p ./build/linker
