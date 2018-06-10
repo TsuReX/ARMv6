@@ -39,4 +39,13 @@ SECTIONS
     . = ALIGN(4096); /* align to page size */
     __bss_end = .;
     __end = .;
+
+    . = 0x1000;
+    irq_stack = .;
+    . = 0x2000;
+    sys_stack = .;
+    . = 0x3000;
+    usr_stack = .;
+
+
 }
