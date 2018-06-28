@@ -1,27 +1,57 @@
-
-.text
 .global entry
-
+.text
 entry:
+    // System is now in Svc mode
+    
+    // Setup Sys mode
+    mrs r0, cpsr
+    and r0, #0xFFFFFFE0
+    add r0, #0x1F    
+    msr cpsr, r0
+
     bl setup_stack
+    
     bl setup_irq
     
-
-    mrs r0, cpsr @ check bits of Mode, IRQ enabled
-
+    bl test_gpio
+    
     b .
 
+test_gpio:
+    //Select GPIO 16 as output     
+    mov r0, #0x1
+    mov r0, r0, lsl #0x12 @ mov r0, 0x40000
+    //GPFSEL1
+    ldr r1, =0x3E200004
+    str r0, [r1]
+    
+    
+    mov r0, r0, lsr #0x2
+    //GPSET0
+    ldr r1, =0x3E200010
+    str r0, [r1]
+    
+    //GPCLR1
+    ldr r1, =0x3E200028
+    str r0, [r1]
+    
+    mov pc, lr
 
 setup_stack:
-    ldr sp, =usr_stack
-
-    mov r0, #0xDF
-    msr cpsr, r0
-    ldr sp, =sys_stack
     
-    mov r0, #0xD2
-    msr cpsr, r0
+    mrs r0, cpsr
+    and r0, #0xFFFFFFE0
+    
+    // Setup IRQ mode
+    add r1, r0, #0x12
+    msr cpsr, r1
     ldr sp, =irq_stack
+    
+    // Setup Sys mode
+    add r1, r0, #0x1F
+    msr cpsr, r1
+    ldr sp, =usr_stack
+    
 
     mov pc, lr
 
@@ -48,9 +78,8 @@ ivt_start:
 .rept 6
     ldr pc, [pc, #0x18]
 .endr
-
     ldr pc, =irq_handler
 
 .rept 9
-    .word handler_hang
+    ldr pc, =err_handler
 .endr
