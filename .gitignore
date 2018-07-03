@@ -2,3 +2,8 @@
 .project
 .settings/
 build/
+*.so
+*.o
+*.a
+*.elf
+*.out
