@@ -2,6 +2,13 @@ ENTRY(_start)
  
 SECTIONS
 {
+    
+/*    . = 0x10;
+    .ivt :
+    {
+	*(.ivt)
+    }
+*/
     /* Starts at LOADER_ADDR. */
     . = 0x8000;
     __start = .;

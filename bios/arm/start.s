@@ -223,7 +223,7 @@ irq_handler:
     bl switch_leds
     subs pc, lr, #0x4
 
-
+//.section .ivt
 ivt_start:
 .rept 6
     //ldr pc, [pc, #0x18]

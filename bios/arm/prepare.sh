@@ -1,6 +1,5 @@
 #!/usr/bin
-arm-linux-gnueabihf-as -g -ggdb start.s -o bios.o
-arm-linux-gnueabihf-ld -T bios.ld bios.o -o bios.elf -e entry
-cp bios.elf start.elf
-arm-linux-gnueabihf-objcopy bios.elf -O binary kernel.img
+arm-linux-gnueabihf-as -g -ggdb start.s -o start.o
+arm-linux-gnueabihf-ld -T map.ld start.o -o start.elf -e entry
+arm-linux-gnueabihf-objcopy start.elf -O binary kernel.img
 #scp start.s bios.elf horror:/home/yurchenko_v/workspace/arm
