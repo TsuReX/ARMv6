@@ -72,6 +72,20 @@ entry:
     b .
 
 
+read_ns_bit:
+    mcr p15, 0, r0, c1, c1, 0
+    mov pc, lr
+
+wait_10m:
+    str r0, [sp], #-0x4
+loop:
+    subs r0, #0x1
+    ldr r0, #10000000
+    bne loop
+    ldr r0, [sp, #0x4]!
+    mov pc, lr
+
+
 gpio_16_1:
     ldr r0, =0x20200000
     ldr r1, =0x10000
