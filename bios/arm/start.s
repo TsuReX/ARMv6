@@ -10,9 +10,23 @@ entry:
     orr r0, #0x1F    
     msr cpsr, r0
     
+    bl read_ns_bit
+
     bl setup_gpio
     
+    bl gpio_16_0
+
+    bl wait_10m
+
     bl gpio_16_1
+    
+    bl wait_10m
+
+    bl gpio_24_1
+
+    bl wait_10m
+
+    bl gpio_25_1
 
     ldr r0, =0x20200000
     ldr r2, =0x10000
@@ -78,9 +92,9 @@ read_ns_bit:
 
 wait_10m:
     str r0, [sp], #-0x4
+    ldr r0, =10000000
 loop:
     subs r0, #0x1
-    ldr r0, #10000000
     bne loop
     ldr r0, [sp, #0x4]!
     mov pc, lr
