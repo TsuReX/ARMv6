@@ -198,12 +198,12 @@ setup_stack:
     // Setup IRQ mode
     add r1, r0, #0x12
     msr cpsr, r1
-    ldr sp, =irq_stack
+    ldr sp, =__irq_stack
     
     // Setup Sys mode
     add r1, r0, #0x1F
     msr cpsr, r1
-    ldr sp, =usr_stack
+    ldr sp, =__usr_stack
 
     mov pc, lr
 
@@ -251,10 +251,8 @@ irq_handler:
     bl switch_leds
     subs pc, lr, #0x4
 
-//.section .ivt
 ivt_start:
 .rept 6
-    //ldr pc, [pc, #0x18]
     b .
 .endr
     ldr pc, =irq_handler
