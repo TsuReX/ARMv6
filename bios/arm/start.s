@@ -200,7 +200,7 @@ setup_uart:
 	mov r1, #0x70
 	str r1, [r0, #0x2C] @ Setup FIFO enabled and 8bit data length
 
-	mov r1, #0x301
+	ldr r1, =0x301
 	str r1, [r0, #0x30] @ Turn on UART, Transmitter and Receiver
 
 	mov pc, lr
@@ -208,10 +208,10 @@ setup_uart:
 uart_recv:
 	ldr r1, =0x20200000
 
-	loop:
+1:
 	ldr r0, [r1, #0x18]
 	and r0, r0, #0x10
-	bne loop
+	bne 1b
 
 	ldr r0, [r1]
 
@@ -222,10 +222,10 @@ uart_send:
 
 	str r0, [r1]
 
-	loop:
+1:
 	ldr r0, [r1, #0x18]
 	and r0, r0, #0x20
-	bne loop
+	bne 1b
 
 	mov pc, lr
 
