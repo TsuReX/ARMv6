@@ -25,15 +25,15 @@ setup_irq_vector:
     mov r11, #0x00000000
     ldr r10, =ivt_start
 
-	@ 		--->
-    ldm r10!, {r0-r7}
-    @		<---
-    stm r11!, {r0-r7}
+	@	out ---> in
+    ldm r10!, {r0-r7} @ r0 = r10[0]; ...; r7 = r10[7]; r10 = r10 + 8 * sizeof(rX)
+    @	in <--- out
+    stm r11!, {r0-r7} @ r11[0] = r0; ...; r11[7] = r7; r11 = r11 + 8 * sizeof(rX)
 
-	@		--->
-    ldm r10, {r0-r7}
-    @		<---
-    stm r11, {r0-r7}
+	@	out ---> in
+    ldm r10, {r0-r7} @ r0 = r10[0]; ...; r7 = r10[7];
+    @	in <--- out
+    stm r11, {r0-r7} @ r11[0] = r0; ...; r11[7] = r7;
     mov pc, lr
 
 err_handler:

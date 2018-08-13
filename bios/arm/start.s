@@ -5,9 +5,11 @@ entry:
     // System is now in Svc mode
     
     // Setup Sys mode
+    @	<---
     mrs r0, cpsr
     and r0, #0xFFFFFFE0
     orr r0, #0x1F    
+    @	--->
     msr cpsr, r0
     
     bl setup_stack
@@ -58,13 +60,17 @@ setup_stack:
     mov pc, lr
 
 enable_timer:
+	@	in <--- out
     ldr r0, =0x202B0400
+    @	in <--- out
     ldr r1, =0xF4240
+    @	out ---> in
     str r1, [r0]	@ Load 1.000.000 into the counter register
     ldr r0, =0x202B0408
     ldr r1, [r0]
     mov r2, #0xA2
     orr r1, r2
+    @	out ---> in
     str r1, [r0]	@ Set Timer enable, Timer interrupt enable, 23-bit counter set
     mov pc, lr
 
