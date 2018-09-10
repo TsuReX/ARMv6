@@ -1,6 +1,16 @@
 .text
 .global setup_uart, uart_recv, uart_send
+
+/*	Configure UART controller and enable it
+ *	Input:
+ *	Return:
+**/
 setup_uart:
+
+	str r0, [r13], #-0x4
+	str r1, [r13], #-0x4
+	str r2, [r13], #-0x4
+
 	@ GPIO alt function 0(0b100) for 14 and 15 
 	
 	ldr r0, =0x20200000 	@ GPIO base address
@@ -9,7 +19,6 @@ setup_uart:
 	ldr r2, [r0, #0x4]		@ GPIO function select 1
 	orr r2, r2, r1			@ Change state only for 14 and 15 GPIOs
 	str r2, [r0, #0x4]		@ Enable function 0 for GPIO 14 and 15
-	
 	
 	@ Setup UART on 14(TX) and 15(RX) GPIOs
 	
@@ -36,29 +45,32 @@ setup_uart:
 	ldr r1, =0x301			@ Set 1 into 0,8,9 bits
 	str r1, [r0, #0x30] 	@ Enable UART, transmitter and receiver
 
+	ldr r0, [r13, #0x4]!
+	ldr r1, [r13, #0x4]!
+	ldr r2, [r13, #0x4]!
+
 	mov pc, lr
 
 /*	Receive byte via UART
  *	Input:
  *	Return:	r0 - data
- 			r2 - error code
+ *			r2 - error code
 **/
 uart_recv:
-	@str r0, [r13], #-0x4
+
 	str r1, [r13], #-0x4
 
-	ldr r1, =0x20200000
+	ldr r0, =0x20201000 	@UART base address
 
-	1:			@ Wait while recv FIFO is empty
-	ldr r0, [r1, #0x18]	@ Read recv FIFO empty flag
-	and r0, r0, #0x10	@ Check flag
+	1:						@ Wait while recv FIFO is empty
+	ldr r0, [r1, #0x18]		@ Read recv FIFO empty flag
+	and r0, r0, #0x10		@ Check flag
 	@ TODO Exit after 100 attempts
 	bne 1b
 	@ TODO Fill r2 with error cdoe
-	ldr r0, [r1]		@ Load data from FIFO into r0
+	ldr r0, [r1]			@ Load data from FIFO into r0
 
 	ldr r1, [r13, #0x4]!
-	@ldr r0, [r13, #0x4]!
 
 	mov pc, lr
 
@@ -67,20 +79,19 @@ uart_recv:
  *	Return:	r0 - error code
 **/
 uart_send:
-	@str r0, [r13], #-0x4
+
 	str r1, [r13], #-0x4
 
-	ldr r1, =0x20200000
+	ldr r0, =0x20201000 	@UART base address
 
-	str r0, [r1]		@ Store data into FIFO from r0
+	str r0, [r1]			@ Store data into FIFO from r0
 
-	1:			@ Wait while recv FIFO is empty
-	ldr r0, [r1, #0x18]	@ Read trans FIFO full flag
-	and r0, r0, #0x20	@ Check flag
+	1:						@ Wait while recv FIFO is empty
+	ldr r0, [r1, #0x18]		@ Read trans FIFO full flag
+	and r0, r0, #0x20		@ Check flag
 	@ TODO Exit after 100 attempts
 	bne 1b
 
 	ldr r1, [r13, #0x4]!
-	@ldr r0, [r13, #0x4]!
 
 	mov pc, lr
