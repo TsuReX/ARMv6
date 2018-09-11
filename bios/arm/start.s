@@ -1,5 +1,8 @@
 .global entry
 .text
+/*
+ * Entry point
+ */
 entry:
 
     // System is now in Svc mode
@@ -13,7 +16,8 @@ entry:
     msr cpsr, r0
     
     bl setup_stack
-    bl read_ns_bit
+
+    bl print_scr
     bl setup_gpio
     bl setup_irq_vector
     bl enable_irq
@@ -27,13 +31,54 @@ entry:
 //******************************************************************//
 
 
-@ Read Non-secure bit from the coprocessor register
-@ Return r0
-read_ns_bit:
-    mcr p15, 0, r0, c1, c1, 0
+/*
+ * Print Secure Configurationa Register
+ * Input:
+ * Return:
+ */
+print_scr:
+
+	str r0, [r13], #-0x4
+	str r1, [r13], #-0x4
+
+	@ Read Secure Configurationa Register
+    mcr p15, 0, r1, c1, c1, 0
+
+	@ Send [7:0]
+	mov r0, r1
+	bl uart_send
+	cmp r0, #0x0
+	bne 1f
+
+	@ Send [15:8]
+	mov r0, r1, lsr #0x8
+	bl uart_send
+	cmp r0, #0x0
+	bne 1f
+
+	@ Send [23:16]
+	mov r0, r1, lsr #0x8
+	bl uart_send
+	cmp r0, #0x0
+	bne 1f
+
+	@ Send [31:24]
+	mov r0, r1, lsr #0x8
+	bl uart_send
+	cmp r0, #0x0
+	bne 1f
+
+	1: @ Error occured during transfer
+	ldr r1, [r13, #0x4]!
+	ldr r0, [r13, #0x4]!
+
     mov pc, lr
 
-
+/*
+ * TODO
+ * Input:
+ * Return:
+ */
 setup_gpio:
     ldr r0, =0x20200000
     ldr r1, =0x40000
@@ -41,7 +86,12 @@ setup_gpio:
     ldr r1, =0x9000
     str r1, [r0, #0x8]
     mov pc, lr
-    
+
+/*
+ * TODO
+ * Input:
+ * Return:
+ */
 setup_stack:
     mrs r0, cpsr
     and r0, #0xFFFFFFE0
@@ -59,6 +109,11 @@ setup_stack:
 
     mov pc, lr
 
+/*
+ * TODO
+ * Input:
+ * Return:
+ */
 enable_timer:
 	@	in <--- out
     ldr r0, =0x202B0400
