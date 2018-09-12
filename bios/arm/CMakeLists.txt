@@ -26,8 +26,9 @@ endif()
 
 enable_language(ASM)
 add_executable(start ${ASM_SRC})
+# TODO Add here arm-linux-gnueabihf-objcopy -O binary start kernel.img
+
 #add_library(start STATIC ${ASM_SRC})
 #target_link_libraries(start)
-
 #execute_process(COMMAND ${CMD})
 #execute_process(COMMAND echo hellloooo)
