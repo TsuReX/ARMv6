@@ -9,20 +9,25 @@ entry:
     
     // Setup Sys mode
     @	<---
-    mrs r0, cpsr
+
+	@ TODO Use CPS instruction to change mode
+	mrs r0, cpsr
     and r0, #0xFFFFFFE0
     orr r0, #0x1F    
     @	--->
     msr cpsr, r0
     
+    @ TODO Check GPIO manipulation functions
+    @ TODO Check UART manipulation functions
+
     bl setup_stack
 
-    bl print_scr
-    bl setup_gpio
-    bl setup_irq_vector
-    bl enable_irq
-    @bl enable_timer_irq
-    @bl enable_timer
+    bl print_scr		@ TODO Check
+    bl setup_gpio		@ TODO Remove
+    bl setup_irq_vector	@ TODO Check
+    bl enable_irq		@ TODO Check
+    @bl enable_timer_irq	@ TODO Check
+    @bl enable_timer		@ TODO Check
 
     bl blink_led
     
@@ -93,10 +98,11 @@ setup_gpio:
  * Return:
  */
 setup_stack:
+
     mrs r0, cpsr
     and r0, #0xFFFFFFE0
 
-	@ TODO Setup FIQ, SVC stacks
+	@ TODO Setup stacks for all modes
     // Setup IRQ mode
     add r1, r0, #0x12
     msr cpsr, r1

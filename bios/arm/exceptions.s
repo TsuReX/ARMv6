@@ -1,27 +1,74 @@
 .text
 .global setup_irq_vector, enable_irq, enable_timer_irq, disable_timer_irq
 
+/*
+ * Enable one of IRQ source as ARM Timer Interrupt
+ * Input:
+ * Return:
+ */
 enable_timer_irq:
-    ldr r0, =0x202B0218
-    ldr r1, [r0]
-    orr r1, #0x1
-    str r1, [r0]
+
+	str r0, [r13], #-0x4
+	str r1, [r13], #-0x4
+
+	@ Enable IRQ sourse in a Base Interrupt Enable Register
+    ldr r0, =0x202B0218 @ BIER addr is 0x202B0000 + 0x218
+    ldr r1, [r0]	@ Read a value of the BIER
+    orr r1, #0x1	@ Enable ARM Timer IRQ (1 in 0s bit)
+    str r1, [r0]	@ Store the value in the BIER
+
+	ldr r1, [r13, #0x4]!
+	ldr r0, [r13, #0x4]!
+
     mov pc, lr
 
+/*
+ * Disable ARM Timer Interrupt as one of IRQ source
+ * Input:
+ * Return:
+ */
 disable_timer_irq:
-    ldr r0, =0x202B0218
-    ldr r1, [r0]
-    and r1, #0xFFFFFFFE
-    str r1, [r0]
+
+	str r0, [r13], #-0x4
+	str r1, [r13], #-0x4
+
+	@ Disable IRQ sourse in a Base Interrupt Enable Register
+    ldr r0, =0x202B0218 @ BIER addr is 0x202B0000 + 0x218
+    ldr r1, [r0]		@ Read a value of the BIER
+    and r1, #0xFFFFFFFE	@ Disable ARM Timer IRQ (1 in 0s bit)
+    str r1, [r0]		@ Store the value in the BIER
+
+	ldr r1, [r13, #0x4]!
+	ldr r0, [r13, #0x4]!
+
     mov pc, lr
 
+/*
+ * Enable IRQ in CPSR register
+ * Input:
+ * Return:
+ */
 enable_irq:
-    mrs r0, cpsr
-    orr r0, #0x80
-    msr cpsr, r0
+
+	str r0, [r13], #-0x4
+	str r1, [r13], #-0x4
+
+    mrs r0, cpsr	@ Read a value of state register
+    orr r0, #0x80	@ Enable IRQ (1 in 7th bit)
+    msr cpsr, r0	@ Store the value into the state register
+
+	ldr r1, [r13, #0x4]!
+	ldr r0, [r13, #0x4]!
+
     mov pc, lr
 
+/*
+ * TODO Description
+ * Input:
+ * Return:
+ */
 setup_irq_vector:
+
     mov r11, #0x00000000
     ldr r10, =ivt_start
 
@@ -36,13 +83,28 @@ setup_irq_vector:
     stm r11, {r0-r7} @ r11[0] = r0; ...; r11[7] = r7;
     mov pc, lr
 
+/*
+ * TODO Description
+ * Input:
+ * Return:
+ */
 err_handler:
     b .
 
+/*
+ * TODO Description
+ * Input:
+ * Return:
+ */
 irq_handler:
+
     bl switch_leds
+
     subs pc, lr, #0x4
 
+/*
+ * TODO Description
+ */
 ivt_start:
 .rept 6
     ldr pc, =err_handler
