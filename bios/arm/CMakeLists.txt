@@ -13,7 +13,9 @@ set(ASM_SRC start.s
 			leds.s
 			uart.s
 			exceptions.s
-			delay.s)
+			delay.s
+			gpio.s
+			math.s)
 
 set(CMAKE_EXE_LINKER_FLAGS "-T ${CMAKE_CURRENT_SOURCE_DIR}/map.ld -nostdlib")
 

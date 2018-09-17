@@ -1,3 +1,33 @@
+#define FIQ_MODE	0x11 // 0b10001
+#define IRQ_MODE	0x12 // 0b10010
+#define ABT_MODE	0x17 // 0b10111
+#define UND_MODE	0x1B // 0b11011
+#define SVC_MODE	0x13 // 0b10011
+#define SYS_MODE	0x1F // 0b11111
+#define USR_MODE	0x10 // 0b10000
+#define MON_MODE	0x16 // 0b10110
+
+#define GPIO_IN		0x00 // 0b000
+#define GPIO_OUT	0x01 // 0b001
+#define GPIO_ALT0	0x04 // 0b100
+#define GPIO_ALT1	0x05 // 0b101
+#define GPIO_ALT2	0x06 // 0b110
+#define GPIO_ALT3	0x07 // 0b111
+#define GPIO_ALT4	0x03 // 0b011
+#define GPIO_ALT5	0x02 // 0b010
+
+#define GPIO_1		0x1
+#define GPIO_2		0x2
+#define GPIO_3		0x3
+#define GPIO_4		0x4
+#define GPIO_5		0x5
+#define GPIO_6		0x6
+#define GPIO_7		0x7
+#define GPIO_8		0x8
+#define GPIO_9		0x9
+#define GPIO_10		0xA
+#define GPIO_11		0xB
+
 .global entry
 .text
 /*
@@ -5,27 +35,37 @@
  */
 entry:
 
-    // System is now in Svc mode
+    @ System is now in Supervisor mode
+    @ Setup stacks pointer for all Operating modes
+    cpsid #FIQ_MODE 		@ Change processor state, interrupt disabled
+	ldr sp, = __fiq_stack	@ FIQ
+    cpsid #IRQ_MODE
+    ldr sp, = __irq_stack 	@ IRQ
+	cpsid #ABT_MODE
+	ldr sp, = __abt_stack 	@ Abort
+	cpsid #UND_MODE
+	ldr sp, = __und_stack 	@ Undefined
+    cpsid #SVC_MODE
+    ldr sp, = __svc_stack 	@ Supervisor
+	cpsid #SYS_MODE
+    ldr sp, = __sys_stack 	@ System
+	@ TODO Change mode to Secure Monitor
+	@ How to do it?
+	ldr sp, = __mon_stack @ Secure Monitor
     
-    // Setup Sys mode
-    @	<---
+	@ User
 
-	@ TODO Use CPS instruction to change mode
-	mrs r0, cpsr
-    and r0, #0xFFFFFFE0
-    orr r0, #0x1F    
-    @	--->
-    msr cpsr, r0
-    
     @ TODO Check GPIO manipulation functions
+	mov r0, GPIO_1
+	mov r1, 1
+	bl set_gpio_mode
     @ TODO Check UART manipulation functions
 
-    bl setup_stack
 
-    bl print_scr		@ TODO Check
-    bl setup_gpio		@ TODO Remove
-    bl setup_irq_vector	@ TODO Check
-    bl enable_irq		@ TODO Check
+    bl print_scr			@ TODO Check
+    bl setup_gpio			@ TODO Remove
+    bl setup_irq_vector		@ TODO Check
+    bl enable_irq			@ TODO Check
     @bl enable_timer_irq	@ TODO Check
     @bl enable_timer		@ TODO Check
 
@@ -90,29 +130,6 @@ setup_gpio:
     str r1, [r0, #0x4]
     ldr r1, =0x9000
     str r1, [r0, #0x8]
-    mov pc, lr
-
-/*
- * TODO
- * Input:
- * Return:
- */
-setup_stack:
-
-    mrs r0, cpsr
-    and r0, #0xFFFFFFE0
-
-	@ TODO Setup stacks for all modes
-    // Setup IRQ mode
-    add r1, r0, #0x12
-    msr cpsr, r1
-    ldr sp, =__irq_stack
-    
-    // Setup Sys mode
-    add r1, r0, #0x1F
-    msr cpsr, r1
-    ldr sp, =__usr_stack
-
     mov pc, lr
 
 /*
