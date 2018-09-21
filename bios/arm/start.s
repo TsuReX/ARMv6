@@ -1,32 +1,32 @@
-#define FIQ_MODE	0x11 // 0b10001
-#define IRQ_MODE	0x12 // 0b10010
-#define ABT_MODE	0x17 // 0b10111
-#define UND_MODE	0x1B // 0b11011
-#define SVC_MODE	0x13 // 0b10011
-#define SYS_MODE	0x1F // 0b11111
-#define USR_MODE	0x10 // 0b10000
-#define MON_MODE	0x16 // 0b10110
+.equ FIQ_MODE,	0x11 /* 0b10001 */
+.equ IRQ_MODE,	0x12 /* 0b10010 */
+.equ ABT_MODE,	0x17 /* 0b10111 */
+.equ UND_MODE,	0x1B /* 0b11011 */
+.equ SVC_MODE,	0x13 /* 0b10011 */
+.equ SYS_MODE,	0x1F /* 0b11111 */
+.equ USR_MODE,	0x10 /* 0b10000 */
+.equ MON_MODE,	0x16 /* 0b10110 */
 
-#define GPIO_IN		0x00 // 0b000
-#define GPIO_OUT	0x01 // 0b001
-#define GPIO_ALT0	0x04 // 0b100
-#define GPIO_ALT1	0x05 // 0b101
-#define GPIO_ALT2	0x06 // 0b110
-#define GPIO_ALT3	0x07 // 0b111
-#define GPIO_ALT4	0x03 // 0b011
-#define GPIO_ALT5	0x02 // 0b010
+.equ GPIO_IN,	0x00 /* 0b000 */
+.equ GPIO_OUT,	0x01 /* 0b001 */
+.equ GPIO_ALT0,	0x04 /* 0b100 */
+.equ GPIO_ALT1,	0x05 /* 0b101 */
+.equ GPIO_ALT2,	0x06 /* 0b110 */
+.equ GPIO_ALT3,	0x07 /* 0b111 */
+.equ GPIO_ALT4,	0x03 /* 0b011 */
+.equ GPIO_ALT5,	0x02 /* 0b010 */
 
-#define GPIO_1		0x1
-#define GPIO_2		0x2
-#define GPIO_3		0x3
-#define GPIO_4		0x4
-#define GPIO_5		0x5
-#define GPIO_6		0x6
-#define GPIO_7		0x7
-#define GPIO_8		0x8
-#define GPIO_9		0x9
-#define GPIO_10		0xA
-#define GPIO_11		0xB
+.equ GPIO_1,	0x1
+.equ GPIO_2,	0x2
+.equ GPIO_3,	0x3
+.equ GPIO_4,	0x4
+.equ GPIO_5,	0x5
+.equ GPIO_6,	0x6
+.equ GPIO_7,	0x7
+.equ GPIO_8,	0x8
+.equ GPIO_9,	0x9
+.equ GPIO_10,	0xA
+.equ GPIO_11,	0xB
 
 .global entry
 .text
@@ -35,42 +35,48 @@
  */
 entry:
 
-    @ System is now in Supervisor mode
-    @ Setup stacks pointer for all Operating modes
-    cpsid #FIQ_MODE 		@ Change processor state, interrupt disabled
+	@ The system is now in Supervisor mode
+	
+	@ Setup stacks pointer for all Operating modes
+	@cps #SVC_MODE		@ Its unnecessary operation
+	ldr sp, = __svc_stack	@ Supervisor
+	cps #FIQ_MODE		@ Change processor state
 	ldr sp, = __fiq_stack	@ FIQ
-    cpsid #IRQ_MODE
-    ldr sp, = __irq_stack 	@ IRQ
-	cpsid #ABT_MODE
-	ldr sp, = __abt_stack 	@ Abort
-	cpsid #UND_MODE
-	ldr sp, = __und_stack 	@ Undefined
-    cpsid #SVC_MODE
-    ldr sp, = __svc_stack 	@ Supervisor
-	cpsid #SYS_MODE
-    ldr sp, = __sys_stack 	@ System
-	@ TODO Change mode to Secure Monitor
-	@ How to do it?
-	ldr sp, = __mon_stack @ Secure Monitor
-    
-	@ User
+	cps #IRQ_MODE
+	ldr sp, = __irq_stack	@ IRQ
+	cps #ABT_MODE
+	ldr sp, = __abt_stack	@ Abort
+	cps #UND_MODE
+	ldr sp, = __und_stack	@ Undefined
+	cps #MON_MODE
+	ldr sp, = __mon_stack	@ Secure Monitor
+	cps #SYS_MODE
+	ldr sp, = __sys_stack	@ System
+	
+	@ The system now is in System mode - working mode
 
-    @ TODO Check GPIO manipulation functions
-	mov r0, GPIO_1
-	mov r1, 1
-	bl set_gpio_mode
-    @ TODO Check UART manipulation functions
+	@ TODO Check GPIO manipulation functions
+	@ Set GPIO mode
+	mov r0, #GPIO_1		@ Specify GPIO number
+	mov r1, #GPIO_IN	@ Specify GPIO mode
+	bl set_gpio_mode	@ Set mode to GPIO
+
+	@ Set GPIO value
+	mov r0, #GPIO_1		@ Specify GPIO number
+	mov r1, #0x1		@ Specify GPIO value
+	bl set_gpio_val		@ Set value to GPIO
+	
+	@ TODO Check UART manipulation functions
 
 
-    bl print_scr			@ TODO Check
-    bl setup_gpio			@ TODO Remove
-    bl setup_irq_vector		@ TODO Check
-    bl enable_irq			@ TODO Check
-    @bl enable_timer_irq	@ TODO Check
-    @bl enable_timer		@ TODO Check
+	bl print_scr		@ TODO Check
+	bl setup_gpio		@ TODO Remove
+	bl setup_irq_vector	@ TODO Check
+	bl enable_irq		@ TODO Check
+	@bl enable_timer_irq	@ TODO Check
+	@bl enable_timer	@ TODO Check
 
     bl blink_led
-    
     b .
 
 //******************************************************************//
