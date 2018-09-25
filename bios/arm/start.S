@@ -1,4 +1,13 @@
-.include "ports.S"
+#include "ports.S"
+
+/* .include "ports.S"
+ * This construction shouldn't be used.
+ * ports.S is assebmler language source file which contains C preprocessor constructions,
+ * the constructions are processed by C-preprocessor and pure assembler language source code file is generated,
+ * but .include directive says to assembler to get NOT preprocessed file ports.S with C-preprocessor 
+ * constructions what causes assembling error.
+ * .include directive should be used for pure assebly language files only!
+ */
 
 .global entry
 
