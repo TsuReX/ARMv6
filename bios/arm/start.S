@@ -52,6 +52,7 @@ entry:
 
     bl blink_led
     b .
+    b stub_func /* Important to be confident that project can be built with .S and .c files */
 
 //******************************************************************//
 

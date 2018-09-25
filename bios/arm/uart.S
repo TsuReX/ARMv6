@@ -1,4 +1,4 @@
-.include "ports.s"
+.include "ports.S"
 
 .text
 

@@ -15,7 +15,7 @@
 .equ GPIO_BASE, 0x20200000 /* RaspberryPi 1 */
 #else /* VERSATILE_PB */
 .equ GPIO_BASE, 0x101E4000 /* Versatile/PB  */
-asda
+/*asda*/
 #endif
 
 .equ GPIO_IN,	0x00 /* 0b000 */
