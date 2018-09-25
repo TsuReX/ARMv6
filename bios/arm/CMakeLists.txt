@@ -21,16 +21,19 @@ set(ASM_SRC	start.S
 		config.h)
 
 include_directories( ${CMAKE_CURRENT_SOURCE_DIR} )
+
+if ( NOT DEFINED PLATFORM )
+    set (PLATFORM "VERSATILE_PB")
+endif()
+
+message ("-- Selected platform is ${PLATFORM}")
+add_definitions(-D${PLATFORM})
+
 set( CMAKE_EXECUTABLE_SUFFIX .elf )
+
 set( CMAKE_EXE_LINKER_FLAGS "-T ${CMAKE_CURRENT_SOURCE_DIR}/map.ld -nostdlib")
 
-#set( CMAKE_ASM_FLAGS "-DPLATFORM=1")
-#add_definitions(-DPLATFORM)
-#message(${CMAKE_SOURCE_DIR})
 #message(${CMAKE_BINARY_DIR})
-#if ( DEFINED CMD )
-#	message("-- User msg: " ${CMD})
-#endif()
 #enable_language(ASM)
 
 add_executable(start ${ASM_SRC} ${C_SRC} )

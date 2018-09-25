@@ -1,4 +1,5 @@
-.include "config.h"
+#include "config.h"
+
 .equ FIQ_MODE,	0x11 /* 0b10001 */
 .equ IRQ_MODE,	0x12 /* 0b10010 */
 .equ ABT_MODE,	0x17 /* 0b10111 */
@@ -8,14 +9,11 @@
 .equ USR_MODE,	0x10 /* 0b10000 */
 .equ MON_MODE,	0x16 /* 0b10110 */
 
-#define PLAT 1
-
-#ifdef PLAT /**/
-/*#if PLATFORM == RASPBERRYPI_1 */
+/*#ifdef PLAT /**/
+#ifdef RASPBERRY_PI1
 .equ GPIO_BASE, 0x20200000 /* RaspberryPi 1 */
 #else /* VERSATILE_PB */
 .equ GPIO_BASE, 0x101E4000 /* Versatile/PB  */
-/*asda*/
 #endif
 
 .equ GPIO_IN,	0x00 /* 0b000 */
