@@ -1,4 +1,7 @@
+.include "ports.s"
+
 .text
+
 .global setup_uart, uart_recv, uart_send
 
 /*	Configure UART controller and enable it
