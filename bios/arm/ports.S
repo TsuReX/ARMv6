@@ -1,5 +1,3 @@
-#include "config.h"
-
 .equ FIQ_MODE,	0x11 /* 0b10001 */
 .equ IRQ_MODE,	0x12 /* 0b10010 */
 .equ ABT_MODE,	0x17 /* 0b10111 */
