@@ -1,11 +1,17 @@
+.global delay
+
 .text
-.global wait_10m
-@ Delay 10 miliseconds
-wait_10m:
-    str r0, [sp], #-0x4 @ *sp = r0; sp = sp - 0x4
-    ldr r0, =10000000
-	loop:
-    subs r0, #0x1
-    bne loop
-    ldr r0, [sp, #0x4]! @ sp = sp + 0x4; r0 = *sp
-    mov pc, lr
+
+/*
+ * Make specified count of empty cycles
+ * Input: r0 - count of waiting cylcles
+ * Output:
+ */
+delay:
+	cmp r0, #0x0
+	beq exit
+loop:
+	sub r0,r0, #0x1
+	bne loop
+exit:
+	mov pc, lr
