@@ -39,29 +39,20 @@ entry:
 	@ The system now is in System mode - working mode
 
 	@ TODO Check GPIO manipulation functions
-	@ Set GPIO mode
-	mov r0, #GPIO_1		@ Specify GPIO number
-	mov r1, #GPIO_IN	@ Specify GPIO mode
-	bl set_gpio_mode	@ Set mode to GPIO
-
-	@ Set GPIO value
-	mov r0, #GPIO_1		@ Specify GPIO number
-	mov r1, #0x1		@ Specify GPIO value
-	bl set_gpio_val		@ Set value to GPIO
+	bl gpio_test
 	
 	@ TODO Check UART manipulation functions
-
+	@ bl uart_test TODO Implement
 
 	bl print_scr		@ TODO Check
-	bl setup_gpio		@ TODO Remove
 	bl setup_irq_vector	@ TODO Check
 	bl enable_irq		@ TODO Check
 	@bl enable_timer_irq	@ TODO Check
 	@bl enable_timer	@ TODO Check
 
-    bl blink_led
-    b .
-    b stub_func /* Important to be confident that project can be built with .S and .c files */
+	b .
+	/* !!!!!!!!!!!!  */
+	b stub_func /* Important to be confident that project can be built with .S and .c files */
 
 //******************************************************************//
 
@@ -77,7 +68,7 @@ print_scr:
 	str r1, [r13], #-0x4
 
 	@ Read Secure Configurationa Register
-    mcr p15, 0, r1, c1, c1, 0
+	mcr p15, 0, r1, c1, c1, 0
 
 	@ Send [7:0]
 	mov r0, r1
@@ -114,19 +105,6 @@ print_scr:
  * Input:
  * Return:
  */
-setup_gpio:
-    ldr r0, =0x20200000
-    ldr r1, =0x40000
-    str r1, [r0, #0x4]
-    ldr r1, =0x9000
-    str r1, [r0, #0x8]
-    mov pc, lr
-
-/*
- * TODO
- * Input:
- * Return:
- */
 enable_timer:
 	@	in <--- out
     ldr r0, =0x202B0400
@@ -141,4 +119,3 @@ enable_timer:
     @	out ---> in
     str r1, [r0]	@ Set Timer enable, Timer interrupt enable, 23-bit counter set
     mov pc, lr
-

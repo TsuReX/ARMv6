@@ -1,136 +1,173 @@
-.text
-.global blink_led, switch_leds
-blink_led:
-    str lr, [sp], #-0x4
+#include "ports.S"
 
-	bl wait_10m
+.global gpio_test
+
+.text
+
+
+
+gpio_test:
+
+	str lr, [sp], #-0x4
+	
+	bl blink_led
+	
+	ldr lr, [sp, #0x4]!
+	mov pc, lr
+
+blink_led:
+	str lr, [sp], #-0x4
+
+	@ Set GPIO mode
+	mov r0, #GPIO_16	@ Specify GPIO number
+	mov r1, #GPIO_OUT	@ Specify GPIO mode
+	bl set_gpio_mode	@ Set mode to GPIO
+
+	mov r0, #GPIO_24	@ Specify GPIO number
+	mov r1, #GPIO_OUT	@ Specify GPIO mode
+	bl set_gpio_mode	@ Set mode to GPIO
+
+	mov r0, #GPIO_25	@ Specify GPIO number
+	mov r1, #GPIO_OUT	@ Specify GPIO mode
+	bl set_gpio_mode	@ Set mode to GPIO
+
+	
+	ldr r0, =10000000 @ 10M waiting cycles
 
 	bl gpio_16_0
-    bl wait_10m
-    bl gpio_16_1
+	bl delay
+	bl gpio_16_1
+	
+	bl delay
+	bl gpio_24_0
+	bl delay
+	bl gpio_24_1
+	
+	bl delay
+	bl gpio_25_0
+	bl delay
+	bl gpio_25_1
+	bl delay
+	
+	bl gpio_16_0
+	bl gpio_24_0
+	bl gpio_25_0
+	
+	ldr lr, [sp, #0x4]!
+	mov pc, lr
 
-    bl wait_10m
+	//*****************************/
 
-    bl gpio_24_0
-    bl wait_10m
-    bl gpio_24_1
+	bl gpio_16_sw
+	bl delay
+	bl gpio_24_sw
+	bl delay
+	bl gpio_25_sw
 
-	bl wait_10m
+	//****************************/
 
-    bl gpio_25_0
-	bl wait_10m
-    bl gpio_25_1
-
-	bl wait_10m
-
-    bl gpio_16_0
-    bl gpio_24_0
-    bl gpio_25_0
-
-	//*****************************
-
-	ldr r0, =0x20200000
-    ldr r2, =0x10000
-    ldr r1, [r0, #0x1C]
-    and r1, r2
-    cmp r1, r2
-    blne gpio_24_1
-
-    b .
-
-    mvn r3, r1
-    and r3, r2
-    str r3, [r0, #0x1C]
-    and r1, r2
-    str r1, [r0, #0x28]
-
-
-    bl gpio_16_sw
-	bl wait_10m
-    bl gpio_24_sw
-	bl wait_10m
-    bl gpio_25_sw
-
-	//*****************************
-
-    ldr lr, [sp, #0x4]!
-    mov pc, lr
+	ldr lr, [sp, #0x4]!
+	mov pc, lr
 
 gpio_16_1:
-    ldr r0, =0x20200000
-    ldr r1, =0x10000
-    str r1, [r0, #0x1C]
-    mov pc, lr
+	
+	str r0, [sp], #-0x4
+	str r1, [sp], #-0x4
+	str lr, [sp], #-0x4
+	
+	mov r0, #GPIO_16	@ Specify GPIO number
+	mov r1, #0x1		@ Specify GPIO value
+	bl set_gpio_val		@ Set value to GPIO
+	
+	ldr lr, [sp, #0x4]!
+	ldr r1, [sp, #0x4]!
+	ldr r0, [sp, #0x4]!
+	mov pc, lr
 
 gpio_16_0:
-    ldr r0, =0x20200000
-    ldr r1, =0x10000
-    str r1, [r0, #0x28]
-    mov pc, lr
+	
+	str r0, [sp], #-0x4
+	str r1, [sp], #-0x4
+	str lr, [sp], #-0x4
+	
+	mov r0, #GPIO_16	@ Specify GPIO number
+	mov r1, #0x0		@ Specify GPIO value
+	bl set_gpio_val		@ Set value to GPIO
+	
+	ldr lr, [sp, #0x4]!
+	ldr r1, [sp, #0x4]!
+	ldr r0, [sp, #0x4]!
+	
+	mov pc, lr
 
 gpio_16_sw:
-    ldr r0, =0x20200000
-    ldr r2, =0x10000
-    ldr r1, [r0, #0x1C]
-    mvn r3, r1
-    and r3, r2
-    str r3, [r0, #0x1C]
-    and r1, r2
-    str r1, [r0, #0x28]
-    mov pc, lr
+	@ TODO
+	mov pc, lr
 
 gpio_24_1:
-    ldr r0, =0x20200000
-    ldr r1, =0x1000000
-    str r1, [r0, #0x1C]
-    mov pc, lr
+	
+	str r0, [sp], #-0x4
+	str r1, [sp], #-0x4
+	str lr, [sp], #-0x4
+	
+	mov r0, #GPIO_24
+	mov r1, #0x1
+	bl set_gpio_val
+	
+	ldr lr, [sp, #0x4]!
+	ldr r1, [sp, #0x4]!
+	ldr r0, [sp, #0x4]!
+	mov pc, lr
 
 gpio_24_0:
-    ldr r0, =0x20200000
-    ldr r1, =0x1000000
-    str r1, [r0, #0x28]
-    mov pc, lr
+	
+	str r0, [sp], #-0x4
+	str r1, [sp], #-0x4
+	str lr, [sp], #-0x4
+	
+	mov r0, #GPIO_24
+	mov r1, #0x0
+	bl set_gpio_val
+	
+	ldr lr, [sp, #0x4]!
+	ldr r1, [sp, #0x4]!
+	ldr r0, [sp, #0x4]!
+	mov pc, lr
 
 gpio_24_sw:
-    ldr r0, =0x20200000
-    ldr r2, =0x1000000
-    ldr r1, [r0, #0x1C]
-    mvn r3, r1
-    and r3, r2
-    str r3, [r0, #0x1C]
-    and r1, r2
-    str r1, [r0, #0x28]
-    mov pc, lr
+	@ TODO
+	mov pc, lr
 
 gpio_25_1:
-    ldr r0, =0x20200000
-    ldr r1, =0x2000000
-    str r1, [r0, #0x1C]
-    mov pc, lr
+	
+	str r0, [sp], #-0x4
+	str r1, [sp], #-0x4
+	str lr, [sp], #-0x4
+	
+	mov r0, #GPIO_24
+	mov r1, #0x1
+	bl set_gpio_val
+	
+	ldr lr, [sp, #0x4]!
+	ldr r1, [sp, #0x4]!
+	ldr r0, [sp, #0x4]!
+	mov pc, lr
 
 gpio_25_0:
-    ldr r0, =0x20200000
-    ldr r1, =0x2000000
-    str r1, [r0, #0x28]
-    mov pc, lr
+	
+	str r0, [sp], #-0x4
+	str r1, [sp], #-0x4
+	str lr, [sp], #-0x4
+	
+	mov r0, #GPIO_25
+	mov r1, #0x0
+	bl set_gpio_val
+	
+	ldr lr, [sp, #0x4]!
+	ldr r1, [sp, #0x4]!
+	ldr r0, [sp, #0x4]!
+	mov pc, lr
 
 gpio_25_sw:
-    ldr r0, =0x20200000
-    ldr r2, =0x2000000
-    ldr r1, [r0, #0x1C]
-    mvn r3, r1
-    and r3, r2
-    str r3, [r0, #0x1C]
-    and r1, r2
-    str r1, [r0, #0x28]
-    mov pc, lr
-
-switch_leds:
-    str lr, [sp]
-    bl gpio_16_sw
-    bl gpio_24_sw
-    bl gpio_25_sw
-    mov pc, lr
-    ldr lr, [sp]
-
-//******************************************************************//
+	@ TODO
+	mov pc, lr
