@@ -23,6 +23,11 @@
 .equ GPIO_GPCLR0,	0x28
 .equ GPIO_GPCLR1,	0x2C
 
+.equ GPIO_GPLEV0,	0x34
+.equ GPIO_GPLEV1,	0x38
+
+
+
 .equ GPIO_IN,		0x00 /* 0b000 */
 .equ GPIO_OUT,		0x01 /* 0b001 */
 .equ GPIO_ALT0,		0x04 /* 0b100 */
