@@ -19,9 +19,9 @@ setup_uart:
 	ldr r0, =GPIO_BASE		@ GPIO base address
 	ldr r1, =((GPIO_ALT0 << 15) | (GPIO_ALT0 << 12))	@ GPIO_ALT0 mode for 14 and 15 pins
 	
-	ldr r2, [r0, #GPIO_FSEL1]	@ GPIO function select 1
+	ldr r2, [r0, #GPIO_GPFSEL1]	@ GPIO function select 1
 	orr r2, r2, r1			@ Change state only for 14 and 15 GPIOs
-	str r2, [r0, #GPIO_FSEL1]	@ Enable function 0 for GPIO 14 and 15
+	str r2, [r0, #GPIO_GPFSEL1]	@ Enable function 0 for GPIO 14 and 15
 	
 	@ Setup UART on 14(TX) and 15(RX) GPIOs
 	

@@ -14,8 +14,8 @@
 .equ GPIO_BASE, 	0x101E4000 /* Versatile/PB  */
 #endif
 
-.equ GPIO_FSEL0,	0x00
-.equ GPIO_FSEL1,	0x04
+.equ GPIO_GPFSEL0,	0x00
+.equ GPIO_GPFSEL1,	0x04
 
 .equ GPIO_GPSET0,	0x1C
 .equ GPIO_GPSET1,	0x20
