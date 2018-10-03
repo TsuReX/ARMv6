@@ -17,6 +17,12 @@
 .equ GPIO_FSEL0,	0x00
 .equ GPIO_FSEL1,	0x04
 
+.equ GPIO_GPSET0,	0x1C
+.equ GPIO_GPSET1,	0x20
+
+.equ GPIO_GPCLR0,	0x28
+.equ GPIO_GPCLR1,	0x2C
+
 .equ GPIO_IN,		0x00 /* 0b000 */
 .equ GPIO_OUT,		0x01 /* 0b001 */
 .equ GPIO_ALT0,		0x04 /* 0b100 */
