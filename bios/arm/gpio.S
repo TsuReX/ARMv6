@@ -73,15 +73,8 @@ get_gpio_val:
 
 	@ TODO Check
 
-	@ Save frame check!!!
-	sub sp, sp, #0x0C		@ 0x0С = 12 bytes = 3 register * 4 bytes per each register
-	stm sp, {r2-r4, lr}		@ Why 3 registers? r2, r3, r4, lr(r14) are 4
-					@ Rigth! But sp(r13) points free word in memory already
-					@ And it needs to make offset from current free word
-					@ for another 3 registers.
-	sub sp, sp, #0x4		@ Now sp(r13) points to last written word in memory
-					@ It needs to be moved one word (4 bytes)
-					@ in lower addresses direction.
+	stmdb sp!, {r2-r4, lr}		@ sp = sp - 4 * 5, then store registers
+	sub sp, sp, #0x4		@ move sp onto free word
 
 	mov r1, #0x14			@ r1 is gpios count per register
 	bl uidiv_1			@ r1 = r0 div r1; r2 = r0 mod r1; r0 = error
@@ -108,13 +101,8 @@ get_gpio_val:
 	and r1, r1, #0x1		@ mask read value
 	
 	1:
-	@ Restore frame check !!!
-	ldm sp!, {r2-r4, lr}		@ It needs to change sp(r13) value 
-					@ to point free word in memory.
-					@ After loading these registers
-					@ it points to non free word.
-	sub sp, sp, #0x4		@ It needs to be moved sp(r13) one word(4 bytes)
-					@ in lower addresses direction.
+	add sp, sp, #0x4		@ move sp onto the first used word
+	ldmia sp!, {r2-r4, lr}		@ load data from mem to regs, sp = sp + 4 * 5
 	mov pc, lr
 
 /*
