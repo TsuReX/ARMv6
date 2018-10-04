@@ -38,9 +38,9 @@
 .equ GPIO_ALT5,		0x02 /* 0b010 */
 
 
-.equ GPIO_16,		(0x1 << 16)
-.equ GPIO_24,		(0x1 << 24)
-.equ GPIO_25,		(0x1 << 25)
+.equ GPIO_16,		0x10
+.equ GPIO_24,		0x18
+.equ GPIO_25,		0x19
 
 .equ UART_BASE,		0x20201000
 .equ UART_DR,		0x00
