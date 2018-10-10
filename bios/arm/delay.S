@@ -15,6 +15,7 @@ delay:
 	beq exit
 loop:
 	sub r1,r1, #0x1
+	cmp r1, #0x0
 	bne loop
 
 exit:

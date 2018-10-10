@@ -105,7 +105,7 @@ set_gpio_mode:
 	stmdb sp!, {r2-r5, lr}		
 	sub sp, sp, #0x4		
 
-	mov r4, r1			@ save value of mode to r4
+	mov r3, r1			@ save value of mode to r4
 	mov r1, #0x0A			@ r1 is gpios count per register
 	bl uidiv_1			@ r1 = r0 div r1; r2 = r0 mod r1; r0 = error
 	cmp r0, #0x0			@ check error
@@ -125,6 +125,8 @@ set_gpio_mode:
 	@ r0, r1, - free;
 	@ r2, r3, r4, - used
 	
+	mov r0, #0x3			@
+	mul r2, r2, r0			@ 3 bits per each gpio
 	mov r1, r3, lsl r2		@ r1 = r3 << r2 value to set
 	mov r5, #0x7			@ 0b111 mask value
 	mov r5, r5, lsl r2		@ r5 = r5 << r2 clear value
