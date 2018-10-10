@@ -31,8 +31,12 @@ entry:
 	ldr sp, = __abt_stack	@ Abort
 	cps #UND_MODE
 	ldr sp, = __und_stack	@ Undefined
+	
+	/*
+	TODO MON_MODE isn't available in qemu. Check on a real board
 	cps #MON_MODE
 	ldr sp, = __mon_stack	@ Secure Monitor
+	*/
 	cps #SYS_MODE
 	ldr sp, = __sys_stack	@ System
 	
@@ -42,11 +46,11 @@ entry:
 	bl gpio_test
 	
 	@ TODO Check UART manipulation functions
-	@ bl uart_test TODO Implement
+	bl uart_test
 
-	bl print_scr		@ TODO Check
-	bl setup_irq_vector	@ TODO Check
-	bl enable_irq		@ TODO Check
+	@bl print_scr		@ TODO Check
+	@bl setup_irq_vector	@ TODO Check
+	@bl enable_irq		@ TODO Check
 	@bl enable_timer_irq	@ TODO Check
 	@bl enable_timer	@ TODO Check
 

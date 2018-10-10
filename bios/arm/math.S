@@ -26,7 +26,8 @@ uidiv_1: @ The first version of a devision function
 	movlt r0, #0x0		@ OK
 	blt 2f			@ Skip the subtraction loop
 	
-	mov r2, #0x0		@
+	@ r2 now represents integer part
+	mov r2, #0x0		@ Prepare integer part
 	
 	loop:
 	sub r0, r0, r1		@ Decrement dividend by disisor

@@ -4,8 +4,9 @@
 
 .text
 
-
-
+/*
+ *
+ */
 gpio_test:
 
 	str lr, [sp], #-0x4
@@ -15,6 +16,9 @@ gpio_test:
 	ldr lr, [sp, #0x4]!
 	mov pc, lr
 
+/*
+ *
+ */
 blink_led:
 	str lr, [sp], #-0x4
 
@@ -32,7 +36,7 @@ blink_led:
 	bl set_gpio_mode	@ Set mode to GPIO
 
 	
-	ldr r0, =10000000 @ 10M waiting cycles
+	ldr r0, =1000 @ 1K waiting cycles
 
 	bl gpio_16_0
 	bl delay

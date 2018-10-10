@@ -8,10 +8,15 @@
  * Output:
  */
 delay:
-	cmp r0, #0x0
+	str r1, [sp], #-0x4
+
+	mov r1, r0
+	cmp r1, #0x0
 	beq exit
 loop:
-	sub r0,r0, #0x1
+	sub r1,r1, #0x1
 	bne loop
+
 exit:
+	ldr r1, [sp, #0x4]!
 	mov pc, lr

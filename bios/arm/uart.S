@@ -1,8 +1,8 @@
 #include "ports.S"
 
-.text
+.global setup_uart, uart_recv, uart_send, uart_test
 
-.global setup_uart, uart_recv, uart_send
+.text
 
 /*	Configure UART controller and enable it
  *	Input:
@@ -57,7 +57,7 @@ setup_uart:
 /*	Receive byte via UART
  *	Input:
  *	Return:	r0 - error code
- *			r1 - data
+ *		r1 - data
 **/
 uart_recv:
 
@@ -117,5 +117,48 @@ uart_send:
 	2:
 	ldr r2, [r13, #0x4]!
 	ldr r1, [r13, #0x4]!
+
+	mov pc, lr
+
+/*
+ * Send 0xDEADBEEF value via UART
+ * Input:
+ * Return:
+ */
+uart_test:
+
+	str r0, [r13], #-0x4
+	str r1, [r13], #-0x4
+
+	@ Read Secure Configurationa Register
+	ldr r1, =0xABCD
+
+	@ Send [7:0]
+	mov r0, r1
+	bl uart_send
+	cmp r0, #0x0
+	bne 1f
+
+	@ Send [15:8]
+	mov r0, r1, lsr #0x8
+	bl uart_send
+	cmp r0, #0x0
+	bne 1f
+
+	@ Send [23:16]
+	mov r0, r1, lsr #0x8
+	bl uart_send
+	cmp r0, #0x0
+	bne 1f
+
+	@ Send [31:24]
+	mov r0, r1, lsr #0x8
+	bl uart_send
+	cmp r0, #0x0
+	bne 1f
+
+	1: @ Error occured during transfer
+	ldr r1, [r13, #0x4]!
+	ldr r0, [r13, #0x4]!
 
 	mov pc, lr
