@@ -10,6 +10,8 @@
 /*#ifdef PLAT /**/
 #ifdef RASPBERRY_PI1
 .equ GPIO_BASE, 	0x20200000 /* RaspberryPi 1 */
+#elif TEST_BOARD
+.equ GPIO_BASE,		0x00009000
 #else /* VERSATILE_PB */
 .equ GPIO_BASE, 	0x101E4000 /* Versatile/PB  */
 #endif
