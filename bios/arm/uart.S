@@ -127,8 +127,9 @@ uart_send:
  */
 uart_test:
 
-	str r0, [r13], #-0x4
-	str r1, [r13], #-0x4
+	str r0, [sp], #-0x4
+	str r1, [sp], #-0x4
+	str lr, [sp], #-0x4
 
 	@ Read Secure Configurationa Register
 	ldr r1, =0xABCD
@@ -158,7 +159,8 @@ uart_test:
 	bne 1f
 
 	1: @ Error occured during transfer
-	ldr r1, [r13, #0x4]!
-	ldr r0, [r13, #0x4]!
+	ldr lr, [sp, #0x4]!
+	ldr r1, [sp, #0x4]!
+	ldr r0, [sp, #0x4]!
 
 	mov pc, lr
