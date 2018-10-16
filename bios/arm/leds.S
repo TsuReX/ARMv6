@@ -148,7 +148,7 @@ gpio_25_1:
 	str r1, [sp], #-0x4
 	str lr, [sp], #-0x4
 	
-	mov r0, #GPIO_24
+	mov r0, #GPIO_25
 	mov r1, #0x1
 	bl set_gpio_val
 	
