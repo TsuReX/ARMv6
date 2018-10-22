@@ -41,8 +41,11 @@
 
 
 .equ GPIO_16,		0x10
+.equ GPIO_22,		0x16
+.equ GPIO_23,		0x17
 .equ GPIO_24,		0x18
 .equ GPIO_25,		0x19
+.equ GPIO_27,		0x1B
 
 .equ UART_BASE,		0x20201000
 .equ UART_DR,		0x00

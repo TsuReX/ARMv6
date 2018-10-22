@@ -12,8 +12,6 @@
  */
 set_gpio_val:
 
-	@ TODO Check
-
 	stmdb sp!, {r2-r6, lr}
 	sub sp, sp, #0x4
 
@@ -59,8 +57,6 @@ set_gpio_val:
  */
 get_gpio_val:
 
-	@ TODO Check
-
 	stmdb sp!, {r2-r4, lr}
 	sub sp, sp, #0x4
 
@@ -99,8 +95,6 @@ get_gpio_val:
  * Return:	r0 - Error number (TODO)
  */
 set_gpio_mode:
-
-	@ TODO Check
 
 	stmdb sp!, {r2-r5, lr}		
 	sub sp, sp, #0x4		

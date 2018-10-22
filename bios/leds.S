@@ -7,18 +7,6 @@
 /*
  *
  */
-gpio_test:
-
-	str lr, [sp], #-0x4
-	
-	bl blink_led
-	
-	ldr lr, [sp, #0x4]!
-	mov pc, lr
-
-/*
- *
- */
 blink_led:
 	str lr, [sp], #-0x4
 
