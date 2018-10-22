@@ -102,24 +102,26 @@ print_scr:
 	ldr r1, [r13, #0x4]!
 	ldr r0, [r13, #0x4]!
 
-    mov pc, lr
+	mov pc, lr
 
 /*
- * TODO
+ * Enable ARM timer in periodic mode, count up to 10^6 ticks, enable timer interrupt
  * Input:
  * Return:
  */
 enable_timer:
-	@	in <--- out
-    ldr r0, =0x202B0400
-    @	in <--- out
-    ldr r1, =0xF4240
-    @	out ---> in
-    str r1, [r0]	@ Load 1.000.000 into the counter register
-    ldr r0, =0x202B0408
-    ldr r1, [r0]
-    mov r2, #0xA2
-    orr r1, r2
-    @	out ---> in
-    str r1, [r0]	@ Set Timer enable, Timer interrupt enable, 23-bit counter set
-    mov pc, lr
+
+	str r0, [r13], #-0x4
+	str r1, [r13], #-0x4
+
+	ldr r0, =0x202B0000	@ Timer register
+	ldr r1, =0xF4240	@ 1.000.000
+	str r1, [r0, #0x400]	@ Load 1.000.000 into the counter register
+
+	mov r1, #0xE2		@ 0b1110_0010 = 0xE2 (23bit counter, 
+				@ pre-scaler = 1, timer int. enable, timer enable)
+	str r1, [r0, #0x408]	@ Set Timer enable, Timer interrupt enable, 23-bit counter set
+
+	ldr r1, [r13, #0x4]!
+	ldr r0, [r13, #0x4]!
+	mov pc, lr

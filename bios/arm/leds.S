@@ -36,7 +36,7 @@ blink_led:
 	bl set_gpio_mode	@ Set mode to GPIO
 
 	
-	ldr r0, =1000 @ 1K waiting cycles
+	ldr r0, =5000000 @ 5M waiting cycles
 
 	bl gpio_16_0
 	bl delay
