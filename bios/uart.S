@@ -132,7 +132,7 @@ uart_test:
 	str lr, [sp], #-0x4
 
 	@ Read Secure Configurationa Register
-	ldr r1, =0xABCD
+	ldr r1, =0xABCDEF79
 
 	@ Send [7:0]
 	mov r0, r1
@@ -147,13 +147,13 @@ uart_test:
 	bne 1f
 
 	@ Send [23:16]
-	mov r0, r1, lsr #0x8
+	mov r0, r1, lsr #0x10
 	bl uart_send
 	cmp r0, #0x0
 	bne 1f
 
 	@ Send [31:24]
-	mov r0, r1, lsr #0x8
+	mov r0, r1, lsr #0x18
 	bl uart_send
 	cmp r0, #0x0
 	bne 1f

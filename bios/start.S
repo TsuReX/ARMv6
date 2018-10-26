@@ -42,11 +42,12 @@ entry:
 	
 	@ The system now is in System mode - working mode
 
-	@ TODO Check GPIO manipulation functions
-	bl gpio_test
 	
-	@ TODO Check UART manipulation functions
+	@ Check UART manipulation functions
 	bl uart_test
+
+	@ Check GPIO manipulation functions
+	bl gpio_test
 
 	@bl print_scr		@ TODO Check
 	@bl setup_irq_vector	@ TODO Check
