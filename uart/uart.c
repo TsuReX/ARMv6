@@ -4,7 +4,8 @@
 #include <unistd.h>	//Used for UART
 #include <fcntl.h>	//Used for UART
 #include <termios.h>//Used for UART
-
+#include <stdlib.h>
+#include <signal.h>
 
 int32_t configure_uart(int32_t fd) {
 
@@ -31,6 +32,29 @@ int32_t configure_uart(int32_t fd) {
 	return 0;
 }
 
+uint32_t exit_flag = 0;
+void handleSignal(int32_t sigNum) {
+	
+	switch (sigNum) {
+		case SIGINT:
+		printf("Someone wants to stop application\n");
+		exit_flag = 1;
+		break;
+	default:
+		printf("Unregistered signal received: %d\n", sigNum);
+		exit(-1);
+		break;
+	}
+}
+
+int32_t register_stop_handler() {
+
+	struct sigaction act;
+	act.sa_handler = handleSignal;
+	return sigaction(SIGINT, &act, NULL);
+
+}
+
 int32_t main(uint32_t argc, char *argv[]) {
 
 	if (argc < 2) {
@@ -49,13 +73,14 @@ int32_t main(uint32_t argc, char *argv[]) {
 		printf("Error - Unable to open UART.  Ensure it is not in use by another application\n");
 		return 2;
 	}
-
+	
+	printf("Register stop handler\n");
+	register_stop_handler();
 	printf("Configure uart\n");
 	configure_uart(fd);
 
 	printf("Start reading\n");
-	int32_t exit = 0;
-	while ( exit !=0 ) {
+	while ( exit_flag == 0 ) {
 		uint32_t data = 0;
 		uint32_t rx_length = read(fd, (void*)&data, 4);
 		if ( rx_length < 0 ) {
