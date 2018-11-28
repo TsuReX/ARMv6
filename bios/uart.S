@@ -69,7 +69,7 @@ uart_recv:
 
 	1:	@ Wait while recv FIFO is empty
 	@ TODO What about little delay here????
-	ldr r0, [r1, #UART_FR]	@ Read recv FIFO empty flag
+	ldr r0, [r1, #UART_FR]		@ Read recv FIFO empty flag
 	and r0, r0, #0x10		@ Extract flag (bit 5)
 	cmp r0, #0x0			@ Check flag
 
@@ -77,11 +77,11 @@ uart_recv:
 	moveq r0, #0x0			@ Set return OK
 	@ !!!!!!!!
 	ldreq r1, [r1]			@ Load data from FIFO into r1
-	beq 2f					@ Go to exit
+	beq 2f				@ Go to exit
 
 	@ Data wasn't received
 	sub r2, r2, #0x1		@ Decrement and check remaining receive attemts count
-	bne 1b					@ Make one more attempt to transfer
+	bne 1b				@ Make one more attempt to transfer
 
 	2:
 	ldr r2, [r13, #0x4]!
@@ -109,14 +109,63 @@ uart_send:
 
 	@ Data was transfered
 	moveq r0, #0x0			@ Set return OK
-	beq 2f					@ Go to exit
+	beq 2f				@ Go to exit
 
 	@ Data wasn't transfered
 	sub r2, r2, #0x1		@ Decrement and check remaining transfer attemts count
 	moveq r0, #0x1			@ Set return ERROR (timeout)
-	bne 1b					@ Make one more attempt to transfer
+	bne 1b				@ Make one more attempt to transfer
 
 	2:
+	ldr r2, [r13, #0x4]!
+	ldr r1, [r13, #0x4]!
+
+	mov pc, lr
+
+/*	Send word via UART
+ *	Input:	r0 - data (word)
+ *	Return:	r0 - error code
+**/
+uart_send4:
+
+	str r1, [r13], #-0x4		@ UART_BASE address
+	str r2, [r13], #-0x4		@ Counter of retries
+	str r3, [r13], #-0x4		@ Counter of bytes to send
+	str r4, [r13], #-0x4		@ Byte to send / FIFO flags
+
+	ldr r1, =UART_BASE		@ UART base address
+	mov r3, #0x4			@ Count of bytes to send
+
+	1:	@ Send 4 bytes of word
+	and r4, r0, #0xFF		@ Get just first byte
+	str r4, [r1]			@ Store data into FIFO from r0
+	mov r2, #0x64			@ 100 attempts to transfer data
+	2:	@ Wait while trans FIFO is full
+	ldr r4, [r1, #0x18]		@ Read trans FIFO full flag
+	@ TODO What about little delay here????
+	and r4, r4, #0x20		@ Extract flag
+	cmp r4, #0x0			@ Check flag
+	bne 3f				@ Goto data wasn't transfered
+
+	@ Data was transfered
+	sub r3, #0x1			@ Next iteration
+	mov r0, r0, lsr #0x8		@ Get next byte
+	cmp r3, #0x0
+	@ All 4 bytes was sent
+	moveq r0, #0x0			@ Set return OK
+	beq 4f				@ Go to exit
+	@ Not all bytes was sent
+	bne 1b				@ Send next byte
+
+	@ Data wasn't transfered
+	3:
+	sub r2, r2, #0x1		@ Decrement and check remaining transfer attemts count
+	bne 2b				@ Make one more attempt to transfer
+	mov r0, #0x1			@ Set return ERROR (timeout)
+
+	4:
+	ldr r4, [r13, #0x4]!
+	ldr r3, [r13, #0x4]!
 	ldr r2, [r13, #0x4]!
 	ldr r1, [r13, #0x4]!
 
@@ -132,7 +181,7 @@ uart_test:
 	str r0, [sp], #-0x4
 	str r1, [sp], #-0x4
 	str lr, [sp], #-0x4
-
+/*
 	@ Read Secure Configurationa Register
 	ldr r1, =0xABCDEF79
 
@@ -159,6 +208,9 @@ uart_test:
 	bl uart_send
 	cmp r0, #0x0
 	bne 1f
+*/
+	ldr r0, =0xABCDEF79
+	bl uart_send4
 
 	1: @ Error occured during transfer
 	ldr lr, [sp, #0x4]!
