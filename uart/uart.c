@@ -95,7 +95,7 @@ int32_t main(uint32_t argc, char *argv[]) {
 			//Bytes received;
 			printf("Read data: 0x%08X\n", data);
 		}
-		sleep(1);
+		usleep(300000);
 	}
 	close(fd);
 	return 0;
