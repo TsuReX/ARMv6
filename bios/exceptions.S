@@ -1,9 +1,11 @@
+#define MAGIC	0xDEADBEAF
+
 .global setup_irq_vector, enable_irq, setup_irq_handler
 
 .data
 
-irq_handler_fcn: .word  0xDEADBEAF	@ Pointer to handler function for IRQ interrupt
-fiq_handler_fcn: .word  0xDEADBEAF	@ Pointer to handler function for FIQ interrupt
+irq_handler_fcn: .word  MAGIC	@ Pointer to handler function for IRQ interrupt
+fiq_handler_fcn: .word  MAGIC	@ Pointer to handler function for FIQ interrupt
 
 .text
 
@@ -33,19 +35,20 @@ enable_irq:
  */
 setup_irq_vector:
 
-    mov r11, #0x00000000
-    ldr r10, =ivt_start
+	mov r11, #0x00000000
+	ldr r10, =ivt_start
 
 	@	out ---> in
-    ldm r10!, {r0-r7} @ r0 = r10[0]; ...; r7 = r10[7]; r10 = r10 + 8 * sizeof(rX)
-    @	in <--- out
-    stm r11!, {r0-r7} @ r11[0] = r0; ...; r11[7] = r7; r11 = r11 + 8 * sizeof(rX)
+	ldm r10!, {r0-r7} @ r0 = r10[0]; ...; r7 = r10[7]; r10 = r10 + 8 * sizeof(rX)
+	@	in <--- out
+	stm r11!, {r0-r7} @ r11[0] = r0; ...; r11[7] = r7; r11 = r11 + 8 * sizeof(rX)
 
+/*	8 instructions each of which has one word length
 	@	out ---> in
-    ldm r10, {r0-r7} @ r0 = r10[0]; ...; r7 = r10[7];
-    @	in <--- out
-    stm r11, {r0-r7} @ r11[0] = r0; ...; r11[7] = r7;
- 
+	ldm r10, {r0-r7} @ r0 = r10[0]; ...; r7 = r10[7];
+	@	in <--- out
+	stm r11, {r0-r7} @ r11[0] = r0; ...; r11[7] = r7;
+*/
 	mov pc, lr
 
 /*
@@ -54,11 +57,14 @@ setup_irq_vector:
  * Return:
  */
 setup_irq_handler:
+
 	b .
+
 /*
  * TODO Description
  */
 reset_exc:
+
 	b .
 
 /*
@@ -73,6 +79,7 @@ undef_exc:
  * TODO Description
  */
 svc_smc_exc:
+
 	b .
 	
 	movs pc, r14
@@ -81,6 +88,7 @@ svc_smc_exc:
  * TODO Description
  */
 pabt_exc:
+
 	b .
 	
 	subs pc, r14, #0x4
@@ -89,6 +97,7 @@ pabt_exc:
  * TODO Description
  */
 dabt_exc:
+
 	b .
 	
 	subs pc, r14, #0x8
@@ -97,7 +106,11 @@ dabt_exc:
  * TODO Description
  */
 irq_exc:
-	b .
+
+	ldr r0, =irq_handler_fcn
+	ldr r1, =MAGIC
+	cmp r0, r1
+	blne irq_handler_fcn
 	
 	subs pc, r14, #0x4
 
@@ -105,7 +118,11 @@ irq_exc:
  * TODO Description
  */
 fiq_exc:
-	b .
+
+	ldr r0, =fiq_handler_fcn
+	ldr r1, =MAGIC
+	cmp r0, r1
+	blne fiq_handler_fcn
 	
 	subs pc, r14, #0x4
 
@@ -113,6 +130,7 @@ fiq_exc:
  * TODO Description
  */
 smc_exc:
+
 	b .
 
 /*
