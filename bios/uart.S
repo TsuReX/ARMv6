@@ -1,6 +1,6 @@
 #include "ports.S"
 
-.global setup_uart, uart_recv, uart_send, uart_test
+.global setup_uart, uart_recv, uart_send, uart_test, uart_send4
 
 .text
 
