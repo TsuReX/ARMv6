@@ -1,6 +1,6 @@
 #define MAGIC	0xDEADBEAF
 
-.global setup_irq_vector, enable_irq, setup_irq_handler
+.global setup_exc_vector, enable_exc, setup_irq_handler
 
 .data
 
@@ -14,7 +14,7 @@ fiq_handler_fcn: .word  MAGIC	@ Pointer to handler function for FIQ interrupt
  * Input:
  * Return:
  */
-enable_irq:
+enable_exc:
 
 	str r0, [r13], #-0x4
 	str r1, [r13], #-0x4
@@ -29,34 +29,36 @@ enable_irq:
 	mov pc, lr
 
 /*
- * TODO Description
- * Input:
+ * Copy the vector of exceptions to specified address
+ * Input: r0 - destination address of exception's vector to copy
  * Return:
  */
-setup_irq_vector:
+setup_exc_vector:
 
-	mov r11, #0x00000000
-	ldr r10, =ivt_start
+	mov r11, r0
+	ldr r10, =ivt_begin
 
-	@	out ---> in
+	@ 8 instructions each of which has one word length
 	ldm r10!, {r0-r7} @ r0 = r10[0]; ...; r7 = r10[7]; r10 = r10 + 8 * sizeof(rX)
-	@	in <--- out
 	stm r11!, {r0-r7} @ r11[0] = r0; ...; r11[7] = r7; r11 = r11 + 8 * sizeof(rX)
 
-/*	8 instructions each of which has one word length
-	@	out ---> in
-	ldm r10, {r0-r7} @ r0 = r10[0]; ...; r7 = r10[7];
-	@	in <--- out
-	stm r11, {r0-r7} @ r11[0] = r0; ...; r11[7] = r7;
-*/
 	mov pc, lr
 
 /*
- * TODO Description
- * Input:
+ * Setup handler for IRQ exception
+ * Input: r0 - address of handelr function
  * Return:
  */
 setup_irq_handler:
+
+	b .
+
+/*
+ * Setup handler for FIQ exception
+ * Input:
+ * Return:
+ */
+setup_fiq_handler:
 
 	b .
 
@@ -72,7 +74,7 @@ reset_exc:
  */
 undef_exc:
 	b .
-	
+
 	movs pc, r14
 
 /*
@@ -81,7 +83,7 @@ undef_exc:
 svc_smc_exc:
 
 	b .
-	
+
 	movs pc, r14
 
 /*
@@ -90,7 +92,7 @@ svc_smc_exc:
 pabt_exc:
 
 	b .
-	
+
 	subs pc, r14, #0x4
 
 /*
@@ -99,19 +101,21 @@ pabt_exc:
 dabt_exc:
 
 	b .
-	
+
 	subs pc, r14, #0x8
 
 /*
- * TODO Description
+ * Low level handler for IRQ exception
  */
 irq_exc:
 
-	ldr r0, =irq_handler_fcn
-	ldr r1, =MAGIC
-	cmp r0, r1
-	blne irq_handler_fcn
-	
+	ldr r0, =irq_handler_fcn	@ Get address of pointer
+	ldr r0, [r0]				@ Resolve pointer to get address of function
+	ldr r1, =MAGIC				@ Get magic value of empty pointer
+	cmp r0, r1					@ Compare the address of function and the magic value
+	add lr, pc, #0x4 			@ Save return address
+	movne pc, r0				@ Call funcion if address of funtion is valid
+
 	subs pc, r14, #0x4
 
 /*
@@ -123,7 +127,7 @@ fiq_exc:
 	ldr r1, =MAGIC
 	cmp r0, r1
 	blne fiq_handler_fcn
-	
+
 	subs pc, r14, #0x4
 
 /*
@@ -136,7 +140,7 @@ smc_exc:
 /*
  * Vector of exceptions
  */
-ivt_start:
+ivt_begin:
 ldr pc, =reset_exc		@ 0x00
 ldr pc, =undef_exc		@ 0x04
 ldr pc, =svc_smc_exc	@ 0x08
@@ -145,3 +149,4 @@ ldr pc, =dabt_exc		@ 0x10
 .word 0x0F0FF0F0		@ 0x14
 ldr pc, =irq_exc		@ 0x18
 ldr pc, =fiq_exc		@ 0x1C
+ivt_end:
