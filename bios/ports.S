@@ -18,17 +18,12 @@
 
 .equ GPIO_GPFSEL0,	0x00
 .equ GPIO_GPFSEL1,	0x04
-
 .equ GPIO_GPSET0,	0x1C
 .equ GPIO_GPSET1,	0x20
-
 .equ GPIO_GPCLR0,	0x28
 .equ GPIO_GPCLR1,	0x2C
-
 .equ GPIO_GPLEV0,	0x34
 .equ GPIO_GPLEV1,	0x38
-
-
 
 .equ GPIO_IN,		0x00 /* 0b000 */
 .equ GPIO_OUT,		0x01 /* 0b001 */
@@ -38,7 +33,6 @@
 .equ GPIO_ALT3,		0x07 /* 0b111 */
 .equ GPIO_ALT4,		0x03 /* 0b011 */
 .equ GPIO_ALT5,		0x02 /* 0b010 */
-
 
 .equ GPIO_16,		0x10
 .equ GPIO_22,		0x16
@@ -66,3 +60,34 @@
 .equ UART_ITIP,		0x84
 .equ UART_ITOP,		0x88
 .equ UART_TDR,		0x8C
+
+.equ IRQ_BASE,		0x2020B000
+.equ IRQ0_PEND,		0x200
+.equ IRQ1_PEND,		0x204
+.equ IRQ2_PEND,		0x208
+.equ FIQ_CTRL,		0x20C
+.equ IRQ0_EN,		0x218
+.equ IRQ1_EN,		0x210
+.equ IRQ2_EN,		0x214
+.equ IRQ0_DIS,		0x224
+.equ IRQ1_DIS,		0x21C
+.equ IRQ2_DIS,		0x220
+.equ IRQ0_ARM_TIMER,(1 << 0)
+
+.equ CPSR_FIQ, 		(1 << 6)
+.equ CPSR_IRQ, 		(1 << 7)
+
+.equ TIMER_BASE,	0x2020B000
+.equ TIMER_LOAD,	0x400
+.equ TIMER_CTRL,	0x408
+.equ TIMER_IRQPEND,	0x410
+.equ TIMER_PREDIV,	0x41C
+.equ TIMER_RELOAD,	0x418
+
+.equ TIMER_CTRL_32BIT,	(0x1 << 1)
+.equ TIMER_CTRL_PRE16,	(0x1 << 2)
+.equ TIMER_CTRL_PRE256,	(0x2 << 2)
+.equ TIMER_CTRL_IRQEN,	(0x1 << 5)
+.equ TIMER_CTRL_ENABLE,	(0x1 << 7)
+.equ TIMER_CTRL_FRCSCL,	(0x3E << 16)
+.equ TIMER_CTRL_DEFVAL, (TIMER_CTRL_FRCSCL | TIMER_CTRL_IRQEN | TIMER_CTRL_PRE256 | TIMER_CTRL_32BIT)

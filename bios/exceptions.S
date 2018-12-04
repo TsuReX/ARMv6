@@ -1,6 +1,8 @@
-#define MAGIC	0xDEADBEAF
+#include "ports.S"
 
-.global setup_exc_vector, enable_exc, setup_irq_handler
+.equ MAGIC,		0xDEADBEAF
+
+.global place_exc_vector, enable_irq, disable_irq, enable_fiq, disable_fiq, setup_irq_handler
 
 .data
 
@@ -14,16 +16,65 @@ fiq_handler_fcn: .word  MAGIC	@ Pointer to handler function for FIQ interrupt
  * Input:
  * Return:
  */
-enable_exc:
+enable_irq:
 
 	str r0, [r13], #-0x4
-	str r1, [r13], #-0x4
 
-	mrs r0, cpsr	@ Read a value of state register
-	orr r0, #0x80	@ Enable IRQ (1 in 7th bit)
-	msr cpsr, r0	@ Store the value into the state register
+	mrs r0, cpsr		@ Read a value of state register
+	orr r0, #CPSR_IRQ	@ Set 7th bit into 1
+	msr cpsr, r0		@ Store the value into the state register
 
-	ldr r1, [r13, #0x4]!
+	ldr r0, [r13, #0x4]!
+
+	mov pc, lr
+
+/*
+ * Disable IRQ in CPSR register
+ * Input:
+ * Return:
+ */
+disable_irq:
+
+	str r0, [r13], #-0x4
+
+	mrs r0, cpsr		@ Read a value of state register
+	bic r0, #CPSR_IRQ	@ Clear 7th bit
+	msr cpsr, r0		@ Store the value into the state register
+
+	ldr r0, [r13, #0x4]!
+
+	mov pc, lr
+
+/*
+ * Enable FIQ in CPSR register
+ * Input:
+ * Return:
+ */
+enable_fiq:
+
+	str r0, [r13], #-0x4
+
+	mrs r0, cpsr		@ Read a value of state register
+	orr r0, #CPSR_FIQ	@ Set 6th bit into 1
+	msr cpsr, r0		@ Store the value into the state register
+
+	ldr r0, [r13, #0x4]!
+
+	mov pc, lr
+
+/*
+ * Disable FIQ in CPSR register
+ * Input:
+ * Return:
+ */
+disable_fiq:
+
+	str r0, [r13], #-0x4
+
+	mrs r0, cpsr		@ Read a value of state register
+	bic r0, #CPSR_FIQ	@ Clear 6th bit
+	msr cpsr, r0		@ Store the value into the state register
+
 	ldr r0, [r13, #0x4]!
 
 	mov pc, lr
@@ -33,7 +84,7 @@ enable_exc:
  * Input: r0 - destination address of exception's vector to copy
  * Return:
  */
-setup_exc_vector:
+place_exc_vector:
 
 	mov r11, r0
 	ldr r10, =ivt_begin
@@ -73,6 +124,7 @@ reset_exc:
  * TODO Description
  */
 undef_exc:
+
 	b .
 
 	movs pc, r14
