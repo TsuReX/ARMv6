@@ -19,7 +19,8 @@ set(ASM_SRC	start.S
 		math.S
 		ports.S
 		gpio_test.S
-		timer.S)
+		timer.S
+		memory.S)
 
 include_directories( ${CMAKE_CURRENT_SOURCE_DIR} )
 
