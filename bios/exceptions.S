@@ -97,21 +97,27 @@ place_exc_vector:
 
 /*
  * Setup handler for IRQ exception
- * Input: r0 - address of handelr function
+ * Input: r0 - address of handler function
  * Return:
  */
 setup_irq_handler:
 
-	b .
+	ldr r1, =irq_handler_fcn
+	str r0, [r1]
+
+	mov pc, lr
 
 /*
  * Setup handler for FIQ exception
- * Input:
+ * Input: r0 - address of handler function
  * Return:
  */
 setup_fiq_handler:
 
-	b .
+	ldr r1, =fiq_handler_fcn
+	str r0, [r1]
+
+	mov pc, lr
 
 /*
  * TODO Description

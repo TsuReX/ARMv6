@@ -47,7 +47,21 @@ entry:
 	bl uart_test
 
 	@ Check GPIO manipulation functions
-	bl gpio_test
+	@ bl gpio_test
+
+	@ Setup exceptions vector to 0x0
+	mov r0, #0x0
+	bl place_exc_vector
+
+	@ Check timer
+	ldr r0, =print_scr
+	bl setup_irq_handler
+	bl enable_irq
+	bl enable_timer_irq
+	bl setup_timer
+	ldr r0, =0xFFFF
+	bl set_timer_value
+	bl enable_timer
 
 	@bl print_scr		@ TODO Check
 	@bl setup_irq_vector	@ TODO Check
@@ -103,26 +117,4 @@ print_scr:
 	ldr r1, [r13, #0x4]!
 	ldr r0, [r13, #0x4]!
 
-	mov pc, lr
-
-/*
- * Enable ARM timer in periodic mode, count up to 10^6 ticks, enable timer interrupt
- * Input:
- * Return:
- */
-enable_timer:
-
-	str r0, [r13], #-0x4
-	str r1, [r13], #-0x4
-
-	ldr r0, =0x202B0000	@ Timer register
-	ldr r1, =0xF4240	@ 1.000.000
-	str r1, [r0, #0x400]	@ Load 1.000.000 into the counter register
-
-	mov r1, #0xE2		@ 0b1110_0010 = 0xE2 (23bit counter, 
-				@ pre-scaler = 1, timer int. enable, timer enable)
-	str r1, [r0, #0x408]	@ Set Timer enable, Timer interrupt enable, 23-bit counter set
-
-	ldr r1, [r13, #0x4]!
-	ldr r0, [r13, #0x4]!
 	mov pc, lr
