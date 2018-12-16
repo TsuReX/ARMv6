@@ -3,19 +3,40 @@
 .text
 
 /* 
- * TODO
+ * Copy data from source to destination address
  * Input:	r0 - The begining address of word of being copied field
- *			r1 - Address of word immediately after being copied field
- *			r2 - Destination address
- * Return:	r0 - Error code
+ *		r1 - Destinatiation address
+ *		r2 - Count of bytes to copy
+ * Return:	r0 - The destination address
  */
 memcpy:
-	@ 1. Save registers
-	@ 2. Check begin < end
-	@ 3. Check (end - begin) mod 8 == 0
-	@ 4. Eval C8 = (end - begin) div 8
-	@ 5. Eval C1 = (end - begin) - (C8 * 8)
-	@ 6. Copy batches of 8
-	@ 7. Copy remaider words
-	@ 8. Restore registers
-	@ 9. Return
+
+	stmia sp!, {r3-r12}
+
+	mov r4, #0x1F
+	mov r3, r2, lsr r4
+1:
+	mov r4, #0x0
+	cmp r3, r4
+	beq 2f
+	ldmia r0!, {r5-r12}
+	stmia r1!, {r5-r12}
+	mov r4, #0x1
+	sub r3, r3, r4
+	b 1b
+	mov r4, #0x1F
+	mov r3, r2, r4
+2:
+	mov r4, #0x0
+	cmp r3, r4
+	beq 3f
+	ldr r5, [r0], #0x4
+	str r5, [r0], #0x4
+	mov r4, #0x1
+	sub r3, r3, r4
+	b 2b
+3: 
+	mov r0, r2
+
+	ldmdb sp!, {r3-r12}
+	mov pc, lr
