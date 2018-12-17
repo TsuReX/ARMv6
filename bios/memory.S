@@ -25,7 +25,7 @@ memcpy:
 	sub r3, r3, r4
 	b 1b
 	mov r4, #0x1F
-	mov r3, r2, r4
+	sub r3, r2, r4
 2:
 	mov r4, #0x0
 	cmp r3, r4

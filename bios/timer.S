@@ -1,6 +1,6 @@
 #include "ports.S"
 
-.global enable_timer_irq, disable_timer_irq
+.global enable_timer_irq, disable_timer_irq, enable_timer, disable_timer, setup_timer, set_timer_value
 
 .text
 
