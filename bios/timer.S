@@ -45,7 +45,7 @@ disable_timer_irq:
     mov pc, lr
 
 /*
- * TODO
+ * Activate previously setup timer
  * Input:
  * Return:
  */
@@ -65,7 +65,7 @@ enable_timer:
 	mov pc, lr
 
 /*
- * TODO
+ * Deactivate timer
  * Input:
  * Return:
  */

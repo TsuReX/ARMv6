@@ -11,32 +11,45 @@
  */
 memcpy:
 
-	stmia sp!, {r3-r12}
+	stmdb sp!, {r3-r12}
+	sub sp, sp, #0x4
 
-	mov r4, #0x1F
-	mov r3, r2, lsr r4
-1:
-	mov r4, #0x0
-	cmp r3, r4
+	mov r4, #0x5
+	mov r3, r2, lsr r4	@ Count of 32 bytes blocks
+
+1: @ Copy by 32 bytes
+	cmp r3, #0x0
 	beq 2f
 	ldmia r0!, {r5-r12}
 	stmia r1!, {r5-r12}
-	mov r4, #0x1
-	sub r3, r3, r4
+	sub r3, r3, #0x1
 	b 1b
-	mov r4, #0x1F
-	sub r3, r2, r4
-2:
-	mov r4, #0x0
-	cmp r3, r4
+
+	and r2, r2, #0x1F	@ Elapsed count of bytes
+	mov r4, #0x2
+	mov r3, r2, lsr r4	@ Count of 4 bytes blocks
+
+2: @ Copy by 4 bytes
+	cmp r3, #0x0 
 	beq 3f
 	ldr r5, [r0], #0x4
 	str r5, [r0], #0x4
-	mov r4, #0x1
-	sub r3, r3, r4
+	sub r3, r3, #0x1
 	b 2b
-3: 
-	mov r0, r2
 
-	ldmdb sp!, {r3-r12}
+	and r3, r2, #0x3	@ Elapsed count of bytes
+
+3: @ Copy by 1 byte
+	cmp r3, #0x0
+	beq 4f
+	ldrb r5, [r0], #0x1
+	strb r5, [r0], #0x1
+	sub r3, r3, #0x1
+	b 3b
+
+4:
+	sub r0, r1, r2		@ Return destination address
+
+	add sp, sp, #0x4
+	ldmia sp!, {r3-r12}
 	mov pc, lr
