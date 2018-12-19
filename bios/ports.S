@@ -72,7 +72,7 @@
 .equ IRQ0_DIS,		0x224
 .equ IRQ1_DIS,		0x21C
 .equ IRQ2_DIS,		0x220
-.equ IRQ0_ARM_TIMER,(1 << 0)
+.equ IRQ0_ARM_TIMER,	(1 << 0)
 
 .equ CPSR_FIQ, 		(1 << 6)
 .equ CPSR_IRQ, 		(1 << 7)
@@ -80,6 +80,7 @@
 .equ TIMER_BASE,	0x2020B000
 .equ TIMER_LOAD,	0x400
 .equ TIMER_CTRL,	0x408
+.equ TIMER_CLRIRQ,	0x40C
 .equ TIMER_IRQPEND,	0x410
 .equ TIMER_PREDIV,	0x41C
 .equ TIMER_RELOAD,	0x418
@@ -95,3 +96,14 @@
 .equ SYS_TIMER_BASE,	(0x3000)
 .equ SYS_TIMER_CLO,	(0x4)
 .equ SYS_TIMER_CHI,	(0x8)
+
+
+.macro save
+	stmdb sp!, {r0-r12,sp,lr}
+	sub sp, sp, #0x4
+.endm
+
+.macro restore
+	add sp, sp, #0x4
+	ldria sp!, {r0-r12,sp,lr}
+.endm

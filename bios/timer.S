@@ -1,6 +1,6 @@
 #include "ports.S"
 
-.global enable_timer_irq, disable_timer_irq, enable_timer, disable_timer, setup_timer, set_timer_value
+.global enable_timer_irq, disable_timer_irq, clear_timer_pend_exc, enable_timer, disable_timer, setup_timer, set_timer_value
 
 .text
 
@@ -43,6 +43,24 @@ disable_timer_irq:
 	ldr r0, [r13, #0x4]!
 
     mov pc, lr
+
+/*
+ * Clear pending exception bit
+ * Input:
+ * Return:
+ */
+clear_timer_pend_exc:
+
+	stmbd sp!, {r0, r1}
+	sub sp, sp, #0x4
+
+	ldr r0, =TIMER_BASE + TIMER_CLRIRQ
+	mov r1, 0x0
+	str r1, [r0]
+
+	add sp, sp, #0x4
+	ldmia sp!, {r0, r1}
+	mov pc, lr
 
 /*
  * Activate previously setup timer

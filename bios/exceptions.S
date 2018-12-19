@@ -2,7 +2,7 @@
 
 .equ MAGIC,		0xDEADBEAF
 
-.global place_exc_vector, enable_irq, disable_irq, enable_fiq, disable_fiq, setup_irq_handler
+.global enable_all_exc, disable_all_exc, print_pend_exc, place_exc_vector, enable_irq, disable_irq, enable_fiq, disable_fiq, setup_irq_handler
 
 .data
 
@@ -10,6 +10,33 @@ irq_handler_fcn: .word  MAGIC	@ Pointer to handler function for IRQ interrupt
 fiq_handler_fcn: .word  MAGIC	@ Pointer to handler function for FIQ interrupt
 
 .text
+
+/*
+ * Enable all interrupts on SoC
+ */
+enable_all_exc:
+	@ TODO
+	mov pc, lr
+
+/*
+ * Disable all interrupts on SoC
+ */
+disable_all_exc:
+	@ TODO
+	mov pc, lr
+
+/*
+ * Print pending status of basic interrupts
+ */
+print_pend_exc:
+
+	save
+
+	ldr r1, =IRQ_BASE + IRQ0_PEND
+	ldr r0, [r1]
+
+	restore
+	mov pc, lr
 
 /*
  * Enable IRQ in CPSR register
