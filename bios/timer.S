@@ -51,11 +51,11 @@ disable_timer_irq:
  */
 clear_timer_pend_exc:
 
-	stmbd sp!, {r0, r1}
+	stmdb sp!, {r0, r1}
 	sub sp, sp, #0x4
 
 	ldr r0, =TIMER_BASE + TIMER_CLRIRQ
-	mov r1, 0x0
+	mov r1, #0x0
 	str r1, [r0]
 
 	add sp, sp, #0x4

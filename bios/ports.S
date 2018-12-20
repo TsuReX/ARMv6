@@ -98,11 +98,11 @@
 .equ SYS_TIMER_CHI,	0x8
 
 .macro save
-	stmdb sp!, {r0-r12,sp,lr}
+	stmdb sp!, {r0-r12,lr}
 	sub sp, sp, #0x4
 .endm
 
 .macro restore
 	add sp, sp, #0x4
-	ldria sp!, {r0-r12,sp,lr}
+	ldmia sp!, {r0-r12,lr}
 .endm

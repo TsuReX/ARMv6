@@ -147,22 +147,6 @@ setup_fiq_handler:
 	mov pc, lr
 
 /*
- * Print register of pending interrupt
- */
-print_pend_exc:
-
-	stmdb sp!, {r0-r1, lr}
-	sub sp, sp, #0x4
-
-	ldr r0, =IRQ_BASE
-	ldr r1, [r1, #IRQ0_PEND]
-	bl uart_send4
-
-	add sp, sp, #0x4
-	ldmia sp!, {r0-r1, lr}
-	mov pc, lr
-
-/*
  * TODO Description
  */
 reset_exc:
