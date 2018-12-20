@@ -41,15 +41,15 @@ entry:
 	ldr sp, = __sys_stack	@ System
 	
 	@ The system now is in System mode - working mode
-	
+	@ Check UART manipulation functions
+	bl uart_test
+
 	@ Print Coprocessor registers
 	bl print_scr
 	bl print_tcmsr
 	bl print_midr
 	bl print_ctr
 	
-	@ Check UART manipulation functions
-	bl uart_test
 
 	@ Check GPIO manipulation functions
 	@ bl gpio_test
@@ -59,7 +59,7 @@ entry:
 	bl place_exc_vector
 
 	@ Check timer
-	ldr r0, =print_scr
+	ldr r0, =uart_test
 	bl setup_irq_handler
 	bl enable_irq
 	bl enable_timer_irq
@@ -74,7 +74,9 @@ entry:
 	@bl enable_timer_irq	@ TODO Check
 	@bl enable_timer	@ TODO Check
 
-	b .
+1:
+	bl uart_test
+	b 1b
 	/* !!!!!!!!!!!!  */
 	b stub_func /* Important to be confident that project can be built with .S and .c files */
 
