@@ -198,8 +198,8 @@ irq_exc:
 	ldr r0, [r0]				@ Resolve pointer to get address of function
 	ldr r1, =MAGIC				@ Get magic value of empty pointer
 	cmp r0, r1					@ Compare the address of function and the magic value
-	add lr, pc, #0x4 			@ Save return address
-	movne pc, r0				@ Call funcion if address of funtion is valid
+	mov lr, pc			@ Save return address
+	bxne r0				@ Call funcion if address of funtion is valid
 
 	subs pc, r14, #0x4
 
