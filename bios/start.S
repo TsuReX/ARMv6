@@ -18,7 +18,7 @@
  */
 entry:
 
-	@ The system is now in Supervisor mode
+@1	@ The system is now in Supervisor mode
 	
 	@ Setup stacks pointer for all Operating modes
 	@cps #SVC_MODE		@ Its unnecessary operation
@@ -41,24 +41,24 @@ entry:
 	ldr sp, = __sys_stack	@ System
 	
 	@ The system now is in System mode - working mode
-	@ Check UART manipulation functions
+@2	@ Check UART manipulation functions
 	bl uart_test
 
-	@ Print Coprocessor registers
+@3	@ Print Coprocessor registers
 	bl print_scr
 	bl print_tcmsr
 	bl print_midr
 	bl print_ctr
 	
 
-	@ Check GPIO manipulation functions
+@4	@ Check GPIO manipulation functions
 	@ bl gpio_test
 
-	@ Setup exceptions vector to 0x0
+@5	@ Setup exceptions vector to 0x0
 	mov r0, #0x0
 	bl place_exc_vector
 
-	@ Check timer
+@6	@ Check timer
 	ldr r0, =uart_test
 	bl setup_irq_handler
 	bl enable_irq
@@ -73,7 +73,7 @@ entry:
 	@bl enable_irq		@ TODO Check
 	@bl enable_timer_irq	@ TODO Check
 	@bl enable_timer	@ TODO Check
-
+@7
 1:
 	bl uart_test
 	b 1b

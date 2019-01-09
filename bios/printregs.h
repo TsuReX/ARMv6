@@ -11,3 +11,5 @@
 #define TLBTR	0xDEAD000B
 #define CTR	0xDEAD000C
 #define CIDR	0xDEAD000D
+#define CPSR	0xDEAD000E
+#define SPSR	0xDEAD000F

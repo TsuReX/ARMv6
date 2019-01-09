@@ -1,12 +1,51 @@
-#include "cp15regs.h"
+#include "printregs.h"
 
+.global print_cpsr, print_spsr
 .global print_scr, print_ttbr0, print_ttbr1, print_ttbcr, print_midr
 .global print_dacr, print_nsacr, print_tcmsr, print_itcmr, print_dtcmr
 .global print_tlbtr, print_ctr, print_cidr
 
 .text
 
-/* Print Secure Configurationa Register
+/* Print Current Program Status Register
+ * Input:
+ * Return:
+ */
+print_cpsr:
+
+        stmdb sp!, {r0, lr}
+        sub sp, sp, #0x4
+
+	mrs r1, cpsr
+	ldr r0, =CPSR
+	bl uart_send4
+	mov r0, r1
+	bl uart_send4
+
+        add sp, sp, #0x4
+        ldmia sp!, {r0, lr}
+        mov pc, lr
+
+/* Print Saved Program Status Register
+ * Input:
+ * Return:
+ */
+print_spsr:
+
+        stmdb sp!, {r0, lr}
+        sub sp, sp, #0x4
+
+        mrs r1, spsr
+	ldr r0, =SPSR
+	bl uart_send4
+	mov r0, r1
+	bl uart_send4
+
+        add sp, sp, #0x4
+        ldmia sp!, {r0, lr}
+        mov pc, lr
+
+/* Print Secure Configuration Register
  * Input:
  * Return:
  */

@@ -21,7 +21,7 @@ set(ASM_SRC	start.S
 		gpio_test.S
 		timer.S
 		systimer.S
-		cp15regs.S
+		printregs.S
 		memory.S)
 
 include_directories( ${CMAKE_CURRENT_SOURCE_DIR} )
