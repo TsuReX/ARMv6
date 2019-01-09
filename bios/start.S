@@ -31,12 +31,10 @@ entry:
 	ldr sp, = __abt_stack	@ Abort
 	cps #UND_MODE
 	ldr sp, = __und_stack	@ Undefined
-	
-	/*
-	TODO MON_MODE isn't available in qemu. Check on a real board
+#ifdef RASPBERRY_PI1
 	cps #MON_MODE
 	ldr sp, = __mon_stack	@ Secure Monitor
-	*/
+#endif
 	cps #SYS_MODE
 	ldr sp, = __sys_stack	@ System
 	
