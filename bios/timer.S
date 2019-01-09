@@ -1,6 +1,7 @@
 #include "ports.S"
 
-.global enable_timer_irq, disable_timer_irq, clear_timer_pend_exc, enable_timer, disable_timer, setup_timer, set_timer_value
+.global enable_timer_irq, disable_timer_irq, clear_timer_pend_exc
+.global enable_timer, disable_timer, setup_timer, set_timer_value
 
 .text
 
@@ -16,8 +17,8 @@ enable_timer_irq:
 
 	@ Enable IRQ sourse in a Base Interrupt Enable Register
 	ldr r0, =IRQ_BASE		@ 
-	mov r1, #IRQ0_ARM_TIMER	@ Enable ARM Timer IRQ (1 in 0s bit)
-	str r1, [r0, #IRQ0_EN]	@ Store the value in the BIER
+	mov r1, #IRQ0_ARM_TIMER		@ Enable ARM Timer IRQ (1 in 0s bit)
+	str r1, [r0, #IRQ0_EN]		@ Store the value in the BIER
 
 	ldr r1, [r13, #0x4]!
 	ldr r0, [r13, #0x4]!
@@ -35,14 +36,14 @@ disable_timer_irq:
 	str r1, [r13], #-0x4
 
 	@ Disable IRQ sourse in a Base Interrupt Enable Register
-    ldr r0, =IRQ_BASE		@ 
-    mov r1, #IRQ0_ARM_TIMER	@ Disable ARM Timer IRQ (1 in 0s bit)
-    str r1, [r0, #IRQ0_DIS]	@ Store the value in the BIER
+	ldr r0, =IRQ_BASE		@ 
+	mov r1, #IRQ0_ARM_TIMER		@ Disable ARM Timer IRQ (1 in 0s bit)
+	str r1, [r0, #IRQ0_DIS]		@ Store the value in the BIER
 
 	ldr r1, [r13, #0x4]!
 	ldr r0, [r13, #0x4]!
 
-    mov pc, lr
+	mov pc, lr
 
 /*
  * Clear pending exception bit
@@ -72,7 +73,7 @@ enable_timer:
 	str r0, [r13], #-0x4
 	str r1, [r13], #-0x4
 
-	ldr r0, =TIMER_BASE			@ 
+	ldr r0, =TIMER_BASE		@
 	ldr r1, [r0, #TIMER_CTRL]	@ 
 	orr r1, #TIMER_CTRL_ENABLE	@ 
 	str r1, [r0, #TIMER_CTRL]	@ 
@@ -113,9 +114,9 @@ setup_timer:
 	str r1, [r13], #-0x4
 	str r2, [r13], #-0x4
 
-	ldr r0, =TIMER_BASE		@ 
+	ldr r0, =TIMER_BASE		@
 	ldr r2, =TIMER_CTRL_DEFVAL	@
-	orr r1, r2				@ 
+	orr r1, r2			@
 	str r1, [r0, #TIMER_CTRL]	@
 
 	ldr r2, [r13, #0x4]!
@@ -126,14 +127,14 @@ setup_timer:
 
 /*
  * Set new value for timer counter
- * Input: r0 - New value for timer counter
+ * Input: r0 - New value for timer counter. The value must be in range between 1 and 65535
  * Return:
  */
 set_timer_value:
 
 	str r1, [r13], #-0x4
 
-	ldr r1, =TIMER_BASE	@
+	ldr r1, =TIMER_BASE		@
 	str r0, [r1, #TIMER_LOAD]	@
 
 	ldr r1, [r13, #0x4]!
