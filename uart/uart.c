@@ -63,12 +63,15 @@ int32_t main(uint32_t argc, char *argv[]) {
 	}
 	int32_t fd = -1;
 
-    //	O_NDELAY / O_NONBLOCK (same function) - Enables nonblocking mode. When set read requests on the file can return immediately with a failure status
-    //											if there is no input immediately available (instead of blocking). Likewise, write requests can also return
-    //											immediately with a failure status if the output can't be written immediately.
-    //
-    //	O_NOCTTY - When set and path identifies a terminal device, open() shall not cause the terminal device to become the controlling terminal for the process.
-	fd = open(argv[1], O_RDWR | O_NOCTTY | O_NDELAY);		//Open in non blocking read/write mode
+	// O_NDELAY / O_NONBLOCK (same function) - Enables nonblocking mode. 
+	// When set read requests on the file can return immediately with a failure status
+	// if there is no input immediately available (instead of blocking). 
+	// Likewise, write requests can also return immediately 
+	// with a failure status if the output can't be written immediately. 
+	// O_NOCTTY - When set and path identifies a terminal device, 
+	// open() shall not cause the terminal device to become the controlling terminal 
+	// for the process. 
+	fd = open(argv[1], O_RDWR | O_NOCTTY | O_NDELAY); // Open in non blocking read/write mode
 	if ( fd == -1 ) {
 		printf("Error - Unable to open UART.  Ensure it is not in use by another application\n");
 		return 2;
@@ -82,20 +85,25 @@ int32_t main(uint32_t argc, char *argv[]) {
 	printf("Start reading\n");
 	while ( exit_flag == 0 ) {
 		uint32_t data = 0;
-		uint32_t rx_length = read(fd, (void*)&data, 4);
+		int32_t rx_length = read(fd, (void*)&data, 4);
 		if ( rx_length < 0 ) {
+			if (errno == EAGAIN) {
+				usleep(300000);
+				continue;
+			}
 			//An error occured (will occur if there are no bytes)
 			printf("Reading finished with error: %d\n", errno);
 			return 3;
 		}
 		else if ( rx_length == 0 ) {
 			printf("No data\n");
+			usleep(300000);
 		}
 		else {
 			//Bytes received;
+			printf("Received bytes: %d\n", rx_length);
 			printf("Read data: 0x%08X\n", data);
 		}
-		usleep(300000);
 	}
 	close(fd);
 	return 0;
