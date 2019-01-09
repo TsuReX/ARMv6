@@ -16,7 +16,7 @@ print_scr:
         sub sp, sp, #0x4
 	
         mrc p15, 0, r1, c1, c1, 0
-        ldr r0, #SCR
+	ldr r0, =SCR
 	bl uart_send4
 	mov r0, r1
 	bl uart_send4
@@ -35,8 +35,10 @@ print_ttbr0:
         sub sp, sp, #0x4
 
         mrc p15, 0, r0, c2, c0, 0
-	TTBR0
-        bl uart_send4
+        ldr r0, =TTBR0
+	bl uart_send4
+	mov r0, r1
+	bl uart_send4
 
         add sp, sp, #0x4
         ldmia sp!, {r0, lr}
@@ -52,8 +54,10 @@ print_ttbr1:
         sub sp, sp, #0x4
 
         mrc p15, 0, r0, c2, c0, 1
-	TTBR1
-        bl uart_send4
+        ldr r0, =TTBR1
+	bl uart_send4
+	mov r0, r1
+	bl uart_send4
 
         add sp, sp, #0x4
         ldmia sp!, {r0, lr}
@@ -69,8 +73,10 @@ print_ttbcr:
         sub sp, sp, #0x4
 
         mrc p15, 0, r0, c2, c0, 2
-	TTBCR
-        bl uart_send4
+        ldr r0, =TTBCR
+	bl uart_send4
+	mov r0, r1
+	bl uart_send4
 
         add sp, sp, #0x4
         ldmia sp!, {r0, lr}
@@ -86,8 +92,10 @@ print_midr:
         sub sp, sp, #0x4
 
         mrc p15, 0, r0, c0, c0, 0
-	MIDR
-        bl uart_send4
+	ldr r0, =MIDR
+	bl uart_send4
+	mov r0, r1
+	bl uart_send4
 
         add sp, sp, #0x4
         ldmia sp!, {r0, lr}
@@ -103,7 +111,9 @@ print_dacr:
         sub sp, sp, #0x4
 
         mrc p15, 0, r0, c3, c0, 0
-	DACR
+	ldr r0, =DACR
+	bl uart_send4
+	mov r0, r1
         bl uart_send4
 
         add sp, sp, #0x4
@@ -120,8 +130,10 @@ print_nsacr:
         sub sp, sp, #0x4
 
         mrc p15, 0, r0, c1, c1, 2
-	NSACR
-        bl uart_send4
+        ldr r0, =NSACR
+	bl uart_send4
+	mov r0, r1
+	bl uart_send4
 
         add sp, sp, #0x4
         ldmia sp!, {r0, lr}
@@ -137,8 +149,10 @@ print_tcmsr:
         sub sp, sp, #0x4
 	
         mrc p15, 0, r0, c0, c0, 2
-	TCMSR
-        bl uart_send4
+        ldr r0, =TCMSR
+	bl uart_send4
+	mov r0, r1
+	bl uart_send4
 
         add sp, sp, #0x4
         ldmia sp!, {r0, lr}
@@ -154,8 +168,10 @@ print_itcmr:
         sub sp, sp, #0x4
 
         mrc p15, 0, r0, c9, c1, 1
-	ITCMR
-        bl uart_send4
+        ldr r0, =ITCMR
+	bl uart_send4
+	mov r0, r1
+	bl uart_send4
 
         add sp, sp, #0x4
         ldmia sp!, {r0, lr}
@@ -171,8 +187,10 @@ print_dtcmr:
         sub sp, sp, #0x4
 
         mrc p15, 0, r0, c9, c1, 0
-	DTCMR
-        bl uart_send4
+	ldr r0, =DTCMR
+	bl uart_send4
+	mov r0, r1
+	bl uart_send4
 
         add sp, sp, #0x4
         ldmia sp!, {r0, lr}
@@ -188,7 +206,9 @@ print_tlbtr:
         sub sp, sp, #0x4
 
         mrc p15, 0, r0, c0, c0, 3
-	TLBTR
+	ldr r0, =TLBTR
+	bl uart_send4
+	mov r0, r1
         bl uart_send4
 
         add sp, sp, #0x4
@@ -205,7 +225,9 @@ print_ctr:
         sub sp, sp, #0x4
 
         mrc p15, 0, r0, c0, c0, 1
-	CTR
+	ldr r0, =CTR
+	bl uart_send4
+	mov r0, r1
         bl uart_send4
 
         add sp, sp, #0x4
@@ -222,7 +244,9 @@ print_cidr:
         sub sp, sp, #0x4
 
         mrc p15, 0, r0, c13, c0, 1
-	CIDR
+	ldr r0, =CIDR
+	bl uart_send4
+	mov r0, r1
         bl uart_send4
 
         add sp, sp, #0x4
