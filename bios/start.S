@@ -40,6 +40,8 @@
 .endm
 
 .macro print_regs
+	bl print_cpsr
+	bl print_spsr
 	bl print_scr
 	bl print_tcmsr
 	bl print_midr
@@ -55,8 +57,8 @@
 	ldr r0, =undef_handler
 	bl setup_undef_handler
 
-	ldr r0, =svc_cmc_handler
-	bl setup_svc_cmc_handler
+	ldr r0, =svc_smc_handler
+	bl setup_svc_smc_handler
 
 	ldr r0, =pabt_handler
 	bl setup_pabt_handler
@@ -82,13 +84,14 @@ entry:
 	setup_stacks
 	@ The system now is in System mode - working mode
 	do_checking
-	@Print registers
+	@ Print registers
 	print_regs
+	@ Setup default exceptions' handlers
+	setup_exc
 
-
-
-
-@6	@ Check timer
+1:
+	b 1b
+	@ Check timer
 
 	bl enable_irq
 	bl enable_timer_irq
@@ -97,15 +100,8 @@ entry:
 	bl set_timer_value
 	bl enable_timer
 
-	@bl print_scr		@ TODO Check
-	@bl setup_irq_vector	@ TODO Check
-	@bl enable_irq		@ TODO Check
-	@bl enable_timer_irq	@ TODO Check
-	@bl enable_timer	@ TODO Check
-@7
-1:
-	bl uart_test
-	b 1b
+2:
+	b 2b
 	/* !!!!!!!!!!!!  */
 	b stub_func /* Important to be confident that project can be built with .S and .c files */
 

@@ -4,7 +4,8 @@
 
 .global print_pend_exc, place_exc_vector
 .global enable_irq, disable_irq, enable_fiq, disable_fiq
-.global setup_undef_handler, setup_svc_smc_handler, setup_pabt_handler, setup_dabt_handler, setup_irq_handler
+.global setup_undef_handler, setup_svc_smc_handler, setup_pabt_handler, setup_dabt_handler, setup_irq_handler, setup_fiq_handler
+
 .data
 
 undef_handler_fcn:	.word  MAGIC	@ Pointer to handler function for UNDEF interrupt

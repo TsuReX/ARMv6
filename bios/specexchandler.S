@@ -1,6 +1,6 @@
 #include "ports.S"
 
-.global undef_handler, svc_cmc_handler, pabt_handler, dabt_handler, irq_handler, fiq_handler
+.global undef_handler, svc_smc_handler, pabt_handler, dabt_handler, irq_handler, fiq_handler
 
 .text
 
@@ -13,7 +13,7 @@ undef_handler:
 	restore
 	mov pc, lr
 
-svc_cmc_handler:
+svc_smc_handler:
 
 	save
 
