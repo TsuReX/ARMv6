@@ -14,6 +14,7 @@ set(ASM_SRC	start.S
 		leds.S
 		uart.S
 		exceptions.S
+		specexchandler.S
 		delay.S
 		gpio.S
 		math.S

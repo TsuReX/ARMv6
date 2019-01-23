@@ -1,3 +1,5 @@
+#include "printregs.h"
+
 .equ FIQ_MODE,		0x11 /* 0b10001 */
 .equ IRQ_MODE,		0x12 /* 0b10010 */
 .equ ABT_MODE,		0x17 /* 0b10111 */
@@ -82,6 +84,7 @@
 .equ TIMER_CTRL,	0x408
 .equ TIMER_CLRIRQ,	0x40C
 .equ TIMER_IRQPEND,	0x410
+.equ TIMER_MSKIRQ,	0x414
 .equ TIMER_PREDIV,	0x41C
 .equ TIMER_RELOAD,	0x418
 
@@ -105,4 +108,40 @@
 .macro restore
 	add sp, sp, #0x4
 	ldmia sp!, {r0-r12,lr}
+.endm
+
+.macro fiq_save
+	stmdb sp!, {r0-r7,lr}
+	sub sp, sp, #0x4
+.endm
+
+.macro fiq_restore
+	add sp, sp, #0x4
+	ldmia sp!, {r0-r7,lr}
+.endm
+
+.macro	print type, reg
+
+	save
+
+	ldr r0, =\type
+	bl uart_send4
+
+	mov r0, \reg
+	bl uart_send4
+
+	restore
+.endm
+
+.macro	print_val val
+
+	save
+
+	ldr r0, =(VAL)
+	bl uart_send4
+
+	ldr r0, =\val
+	bl uart_send4
+
+	restore
 .endm

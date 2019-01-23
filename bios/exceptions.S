@@ -2,28 +2,19 @@
 
 .equ MAGIC,		0xDEADBEAF
 
-.global enable_all_exc, disable_all_exc, print_pend_exc, place_exc_vector, enable_irq, disable_irq, enable_fiq, disable_fiq, setup_irq_handler
-
+.global print_pend_exc, place_exc_vector
+.global enable_irq, disable_irq, enable_fiq, disable_fiq
+.global setup_undef_handler, setup_svc_smc_handler, setup_pabt_handler, setup_dabt_handler, setup_irq_handler
 .data
 
-irq_handler_fcn: .word  MAGIC	@ Pointer to handler function for IRQ interrupt
-fiq_handler_fcn: .word  MAGIC	@ Pointer to handler function for FIQ interrupt
+undef_handler_fcn:	.word  MAGIC	@ Pointer to handler function for UNDEF interrupt
+svc_smc_handler_fcn:	.word  MAGIC
+pabt_handler_fcn:	.word  MAGIC
+dabt_handler_fcn:	.word  MAGIC
+irq_handler_fcn:	.word  MAGIC
+fiq_handler_fcn:	.word  MAGIC
 
 .text
-
-/*
- * Enable all interrupts on SoC
- */
-enable_all_exc:
-	@ TODO
-	mov pc, lr
-
-/*
- * Disable all interrupts on SoC
- */
-disable_all_exc:
-	@ TODO
-	mov pc, lr
 
 /*
  * Print pending status of basic interrupts
@@ -123,15 +114,79 @@ place_exc_vector:
 	mov pc, lr
 
 /*
+ * Setup handler for undefined instruction exception
+ * Input: r0 - address of handler function
+ * Return:
+ */
+setup_undef_handler:
+
+	save
+
+	ldr r1, =undef_handler_fcn
+	str r0, [r1]
+
+	restore
+	mov pc, lr
+
+/*
+ * Setup handler for supervisor call and secure monitor call exceptions
+ * Input: r0 - address of handler function
+ * Return:
+ */
+setup_svc_smc_handler:
+
+	save
+
+	ldr r1, =svc_smc_handler_fcn
+	str r0, [r1]
+
+	restore
+	mov pc, lr
+
+/*
+ * Setup handler for prefetch abort exception
+ * Input: r0 - address of handler function
+ * Return:
+ */
+
+setup_pabt_handler:
+
+	save
+
+	ldr r1, =svc_smc_handler_fcn
+	str r0, [r1]
+
+	restore
+	mov pc, lr
+
+/*
+ * Setup handler for data abort exception
+ * Input: r0 - address of handler function
+ * Return:
+ */
+setup_dabt_handler:
+
+	save
+
+	ldr r1, =dabt_handler_fcn
+	str r0, [r1]
+
+	restore
+	mov pc, lr
+
+/*
  * Setup handler for IRQ exception
  * Input: r0 - address of handler function
  * Return:
  */
 setup_irq_handler:
 
+	save
+
 	ldr r1, =irq_handler_fcn
 	str r0, [r1]
 
+	restore
 	mov pc, lr
 
 /*
@@ -141,58 +196,121 @@ setup_irq_handler:
  */
 setup_fiq_handler:
 
+	save
+
 	ldr r1, =fiq_handler_fcn
 	str r0, [r1]
 
+	restore
 	mov pc, lr
 
 /*
- * TODO Description
+ * Reset handler. The function is an entry point in programm after CPU was reset
  */
 reset_exc:
-
+	@ TODO What address CPU jumps during exit ???
+	@ I think that here should be jump to entry point
 	b .
 
 /*
- * TODO Description
+ * Undefined instruction exception default handler
  */
 undef_exc:
 
+	save
+
+	bl print_undef
+	bl print_cpsr
+	bl print_spsr
+
+	ldr r0, =undef_handler_fcn
+	ldr r1, =MAGIC
+	cmp r0, r1
+	blne undef_handler_fcn
+	bl print_halt
 	b .
 
+	restore
 	movs pc, r14
+	@subs pc, r14, #0x4 @ See ARMv6 ARM A2.6.3 Undefined Instruction exception
 
 /*
- * TODO Description
+ * Default handler for software interrupt (SVC) and
+ * for secure monitor call (SMC)
  */
 svc_smc_exc:
 
+	save
+
+	bl print_svc_smc
+	bl print_cpsr
+	bl print_spsr
+
+	ldr r0, =svc_smc_handler_fcn
+	ldr r1, =MAGIC
+	cmp r0, r1
+	blne svc_smc_handler_fcn
+	bl print_halt
 	b .
 
+	restore
 	movs pc, r14
 
 /*
- * TODO Description
+ * Prefetch abort default handler
  */
 pabt_exc:
 
+	save
+
+	bl print_pabt
+	bl print_cpsr
+	bl print_spsr
+
+	ldr r0, =pabt_handler_fcn
+	ldr r1, =MAGIC
+	cmp r0, r1
+	blne pabt_handler_fcn
+	bl print_halt
 	b .
 
+	restore
 	subs pc, r14, #0x4
 
 /*
- * TODO Description
+ * Data abort default handler
  */
 dabt_exc:
 
+	save
+
+	bl print_dabt
+	bl print_cpsr
+	bl print_spsr
+
+	ldr r0, =dabt_handler_fcn
+	ldr r1, =MAGIC
+	cmp r0, r1
+	blne dabt_handler_fcn
+	bl print_halt
 	b .
 
+	restore
 	subs pc, r14, #0x8
 
+	@subs pc, r14, #0x4	@ Use this exit way in case 
+						@ when interrupted instruction isn't needed to be reexecuted
+
 /*
- * Low level handler for IRQ exception
+ * Interrupt default handler
  */
 irq_exc:
+
+	save
+
+	bl print_irq
+	bl print_cpsr
+	bl print_spsr
 
 	ldr r0, =irq_handler_fcn	@ Get address of pointer
 	ldr r0, [r0]				@ Resolve pointer to get address of function
@@ -200,27 +318,32 @@ irq_exc:
 	cmp r0, r1					@ Compare the address of function and the magic value
 	mov lr, pc			@ Save return address
 	bxne r0				@ Call funcion if address of funtion is valid
+	bl print_halt
+	b .
 
+	restore
 	subs pc, r14, #0x4
 
 /*
- * TODO Description
+ * Fast interrupt default handler
  */
 fiq_exc:
+
+	fiq_save
+
+	bl print_fiq
+	bl print_cpsr
+	bl print_spsr
 
 	ldr r0, =fiq_handler_fcn
 	ldr r1, =MAGIC
 	cmp r0, r1
 	blne fiq_handler_fcn
-
-	subs pc, r14, #0x4
-
-/*
- * TODO Description
- */
-smc_exc:
-
+	bl print_halt
 	b .
+
+	fiq_restore
+	subs pc, r14, #0x4
 
 /*
  * Vector of exceptions

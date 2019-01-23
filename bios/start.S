@@ -11,15 +11,7 @@
 
 .global entry
 
-.text
-
-/*
- * Entry point
- */
-entry:
-
-@1	@ The system is now in Supervisor mode
-	
+.macro setup_stacks
 	@ Setup stacks pointer for all Operating modes
 	@cps #SVC_MODE		@ Its unnecessary operation
 	ldr sp, = __svc_stack	@ Supervisor
@@ -37,28 +29,67 @@ entry:
 #endif
 	cps #SYS_MODE
 	ldr sp, = __sys_stack	@ System
-	
-	@ The system now is in System mode - working mode
-@2	@ Check UART manipulation functions
+.endm
+
+.macro do_checking
+	@ Check UART manipulation functions
 	bl uart_test
 
-@3	@ Print Coprocessor registers
+	@ Check GPIO manipulation functions
+	@ bl gpio_test
+.endm
+
+.macro print_regs
 	bl print_scr
 	bl print_tcmsr
 	bl print_midr
 	bl print_ctr
-	
+.endm
+.text
 
-@4	@ Check GPIO manipulation functions
-	@ bl gpio_test
-
-@5	@ Setup exceptions vector to 0x0
+.macro setup_exc
+	@ Setup exceptions vector to 0x0
 	mov r0, #0x0
 	bl place_exc_vector
 
-@6	@ Check timer
-	ldr r0, =uart_test
+	ldr r0, =undef_handler
+	bl setup_undef_handler
+
+	ldr r0, =svc_cmc_handler
+	bl setup_svc_cmc_handler
+
+	ldr r0, =pabt_handler
+	bl setup_pabt_handler
+
+	ldr r0, =dabt_handler
+	bl setup_dabt_handler
+
+	ldr r0, =irq_handler
 	bl setup_irq_handler
+
+	ldr r0, =fiq_handler
+	bl setup_fiq_handler
+
+	@ TODO Enable exceptions
+	bl enable_irq @ TODO What does it do?
+.endm
+/*
+ * Entry point
+ */
+entry:
+
+@1	@ The system is now in Supervisor mode
+	setup_stacks
+	@ The system now is in System mode - working mode
+	do_checking
+	@Print registers
+	print_regs
+
+
+
+
+@6	@ Check timer
+
 	bl enable_irq
 	bl enable_timer_irq
 	bl setup_timer

@@ -2,9 +2,25 @@
 
 .global enable_timer_irq, disable_timer_irq, clear_timer_pend_exc
 .global enable_timer, disable_timer, setup_timer, set_timer_value
-
+.global armside_timer_exc_handler
 .text
 
+/*
+ * 
+ */
+armside_timer_exc_handler:
+
+	save
+	ldr r0, =TIMER_BASE
+	ldr r2, [r0, #TIMER_IRQPEND]
+	ldr r3, [r0, #TIMER_MSKIRQ]
+	print #TIMERIRQPEND, r2
+	print #TIMERMSKIRQ, r3
+	mov r1, #0x1
+	str r1, [r0, #TIMER_CLRIRQ]
+	restore
+	mov pc, lr
+ 
 /*
  * Enable one of IRQ source as ARM Timer Interrupt
  * Input:
