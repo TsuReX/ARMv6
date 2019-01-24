@@ -12,6 +12,7 @@
 .global entry
 
 .macro setup_stacks
+
 	@ Setup stacks pointer for all Operating modes
 	@cps #SVC_MODE		@ Its unnecessary operation
 	ldr sp, = __svc_stack	@ Supervisor
@@ -29,27 +30,74 @@
 #endif
 	cps #SYS_MODE
 	ldr sp, = __sys_stack	@ System
+
 .endm
 
 .macro do_checking
+
 	@ Check UART manipulation functions
 	bl uart_test
 
 	@ Check GPIO manipulation functions
 	@ bl gpio_test
+
 .endm
 
 .macro print_regs
+
 	bl print_cpsr
 	bl print_spsr
 	bl print_scr
 	bl print_tcmsr
 	bl print_midr
 	bl print_ctr
+
 .endm
+
+.macro test_irq_vec
+
+	save
+
+	mov r0, #0x0
+	mov r1, #0x10
+	bl memprint
+
+	ldr r0, =_func_ptrs_begin
+	ldr r1, =_func_ptrs_end
+	sub r1, r1, r0
+	bl memprint
+
+	restore
+
+.endm
+
+.macro test_memcpy_memfill
+
+	save
+
+	ldr r0, =0x10000
+	mov r1, #0x123
+	mov r2, #0x1E
+	bl memfill
+
+	bl memprint
+
+	ldr r1, =0x20000
+	mov r2, #0x123
+	bl memcpy
+
+	mov r0, r1
+	mov r1, r2
+	bl memprint
+
+	restore
+
+.endm
+
 .text
 
 .macro setup_exc
+
 	@ Setup exceptions vector to 0x0
 	mov r0, #0x0
 	bl place_exc_vector
@@ -74,7 +122,9 @@
 
 	@ TODO Enable exceptions
 	bl enable_irq @ TODO What does it do?
+
 .endm
+
 /*
  * Entry point
  */
