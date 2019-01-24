@@ -7,6 +7,10 @@
 #include <stdlib.h>
 #include <signal.h>
 
+#include "printregs.h"
+
+int32_t fd = -1;
+
 int32_t configure_uart(int32_t fd) {
 
 	//CONFIGURE THE UART
@@ -55,13 +59,24 @@ int32_t register_stop_handler() {
 
 }
 
+int32_t handle_pkg(pkg_t *pkg) {
+	printf("Package: type = 0x%08X, data = 0x%08X\n", pkg->type, pkg->data);
+	if (pkg->type == MEMPRINT) {
+		uint8_t *data = (uint8_t*)malloc(pkg->data);
+		int32_t rx_length = read(fd, (void*)&data, pkg->data);
+		
+		free(data);
+	}
+	return 0;
+}
+
 int32_t main(uint32_t argc, char *argv[]) {
 
 	if (argc < 2) {
 		printf("Invalid arguments count\n");
 		return 1;
 	}
-	int32_t fd = -1;
+	
 
 	// O_NDELAY / O_NONBLOCK (same function) - Enables nonblocking mode. 
 	// When set read requests on the file can return immediately with a failure status
@@ -84,8 +99,8 @@ int32_t main(uint32_t argc, char *argv[]) {
 
 	printf("Start reading\n");
 	while ( exit_flag == 0 ) {
-		uint32_t data = 0;
-		int32_t rx_length = read(fd, (void*)&data, 4);
+		pkg_t pkg;
+		int32_t rx_length = read(fd, (void*)&pkg, sizeof(pkg_t));
 		if ( rx_length < 0 ) {
 			if (errno == EAGAIN) {
 				usleep(300000);
@@ -100,9 +115,10 @@ int32_t main(uint32_t argc, char *argv[]) {
 			usleep(300000);
 		}
 		else {
-			//Bytes received;
-			printf("Received bytes: %d\n", rx_length);
-			printf("Read data: 0x%08X\n", data);
+			// TODO Check CRC of package and 
+			// remove CRC from type field and call handle_pkg if it's correct
+			
+			handle_pkg(&pkg);
 		}
 	}
 	close(fd);

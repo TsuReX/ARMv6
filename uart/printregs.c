@@ -3,6 +3,7 @@
 
 void printreg(uint32_t type, uint32_t value) {
 	
+	// TODO Correct type checking
 	if (type & 0xFFFF0000 != 0xDEAD0000) {
 		printf("Unknown register: 0x%08X, value: 0x%08X", type, value);
 		return;
