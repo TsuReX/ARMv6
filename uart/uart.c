@@ -64,7 +64,34 @@ int32_t handle_pkg(pkg_t *pkg) {
 	if (pkg->type == MEMPRINT) {
 		uint8_t *data = (uint8_t*)malloc(pkg->data);
 		int32_t rx_length = read(fd, (void*)&data, pkg->data);
-		
+		// TODO Handle reading error
+		uint32_t words_count = (pkg->data - sizeof(uint32_t)) >> 2;
+		uint32_t bytes_count = (pkg->data - sizeof(uint32_t)) & 0x3;
+		printf("Package type = 0x%08X\n", pkg->type);
+		printf("Package data = 0x%08X\n", pkg->data);
+		printf("Start address = 0x%X\n", *(uint32_t*)data);
+		printf("Words count = 0x%X\n", words_count);
+		printf("Bytes count = 0x%X\n", bytes_count);
+		uint32_t i = 0;
+		uint32_t* words_ptr = data + sizeof(uint32_t);
+		uint32_t word_address = *(uint32_t*)data;
+		for (;i < words_count; ++i, word_address += 4, ++words_ptr) {
+			printf("0x%08X : 0x%08X\n", word_address, *words_ptr);
+		}
+		switch(bytes_count) {
+			case 1:
+				printf("0x%08X : 0x%02X\n", word_address, *words_ptr & 0xFF);
+				break;
+			case 2:
+				printf("0x%08X : 0x%04X\n", word_address, *words_ptr & 0xFFFF);
+				break;
+			case 3:
+				printf("0x%08X : 0x%06X\n", word_address, *words_ptr & 0xFFFFFF);
+				break;
+			default:
+				break;
+			}
+		}
 		free(data);
 	}
 	return 0;
