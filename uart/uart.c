@@ -97,6 +97,56 @@ int32_t handle_pkg(pkg_t *pkg) {
 	return 0;
 }
 
+int32_t recv_data(int32_t file_descr, uint8_t* buffer, uint32_t size) {
+    
+    int32_t ret_val = 0;
+    uint32_t count = 0;
+    uint32_t recv_bytes = 0;
+    do {
+        ret_val = read(file_descr, (void*)(buffer + recv_bytes), size - recv_bytes);
+	    if (ret_val < 0) {
+		    if (errno == EAGAIN) {
+			    usleep(300000);
+                ++count;			    
+		    }
+		    //An error occured (will occur if there are no bytes)
+		    printf("Reading finished with error: %d\n", errno);
+		    return -1;
+	    }
+        else if (ret_val == 0) {
+            // TODO
+            printf("ret_val == 0 !!!!!!!!!!!\n");
+            return -10;
+        }
+        else {
+            recv_bytes += ret_val;
+            count = 0;
+        }
+
+    } while (size != recv_bytes && count != STOP_TRIES)
+    
+    if (count == STOP_TRIES) {
+        return -2;            
+    }
+
+    return recv_bytes;
+}
+
+int32_t check_header(header_t *header) {
+    // TODO    
+    return -1;
+}
+
+int32_t check_data(uint8_t *data, uint32_t size) {
+    // TODO    
+    return -1;
+}
+
+int32_t process_data(uint8_t *data, uint32_t size) {
+    // TODO
+    return -1;
+}
+
 int32_t main(uint32_t argc, char *argv[]) {
 
 	if (argc < 2) {
@@ -125,28 +175,43 @@ int32_t main(uint32_t argc, char *argv[]) {
 	configure_uart(fd);
 
 	printf("Start reading\n");
-	while ( exit_flag == 0 ) {
-		pkg_t pkg;
-		int32_t rx_length = read(fd, (void*)&pkg, sizeof(pkg_t));
-		if ( rx_length < 0 ) {
-			if (errno == EAGAIN) {
-				usleep(300000);
-				continue;
-			}
-			//An error occured (will occur if there are no bytes)
-			printf("Reading finished with error: %d\n", errno);
-			return 3;
-		}
-		else if ( rx_length == 0 ) {
-			printf("No data\n");
-			usleep(300000);
-		}
-		else {
-			// TODO Check CRC of package and 
-			// remove CRC from type field and call handle_pkg if it's correct
-			
-			handle_pkg(&pkg);
-		}
+    int32_t ret_val = 0;	
+    while (exit_flag == 0) {
+		header_t header;
+        ret_val = recv_data(fd, sizeof(header_t), &header);
+		
+        if (ret_val != sizeof(header_t)) {
+            // usleep(300000); TODO           
+            continue;
+        }
+        
+        if (check_header(&header) != 0) {
+            continue;
+        }
+        
+        if (header.size == 0) {
+            printf("header.size == 0\n");
+            continue;        
+        }
+        uint8_t* data = (uint8_t*)malloc(header.size);
+        
+        ret_val = recv_data(fd, header->size, data);
+        
+        if (ret_val != header->size) {
+            // usleep(300000); TODO          
+            free(data);            
+            continue;
+        }
+        
+        if (check_data(data, header->size) != 0) {
+            free(data);            
+            continue;
+        }
+        
+        process_data(data, header->size /* - sizeof(uint32_t) */);
+        
+        free(data);
+
 	}
 	close(fd);
 	return 0;
