@@ -9,7 +9,12 @@
 
 #include "printregs.h"
 
-int32_t fd = -1;
+typedef struct {
+	uint32_t crc16;
+	uint32_t size;
+} header_t;
+
+const uint32_t STOP_TRIES = 10;
 
 int32_t configure_uart(int32_t fd) {
 
@@ -59,55 +64,36 @@ int32_t register_stop_handler() {
 
 }
 
-int32_t handle_pkg(pkg_t *pkg) {
-	printf("Package: type = 0x%08X, data = 0x%08X\n", pkg->type, pkg->data);
-	if (pkg->type == MEMPRINT) {
-		uint8_t *data = (uint8_t*)malloc(pkg->data);
-		int32_t rx_length = read(fd, (void*)&data, pkg->data);
-		// TODO Handle reading error
-		uint32_t words_count = (pkg->data - sizeof(uint32_t)) >> 2;
-		uint32_t bytes_count = (pkg->data - sizeof(uint32_t)) & 0x3;
-		printf("Package type = 0x%08X\n", pkg->type);
-		printf("Package data = 0x%08X\n", pkg->data);
-		printf("Start address = 0x%X\n", *(uint32_t*)data);
-		printf("Words count = 0x%X\n", words_count);
-		printf("Bytes count = 0x%X\n", bytes_count);
-		uint32_t i = 0;
-		uint32_t* words_ptr = data + sizeof(uint32_t);
-		uint32_t word_address = *(uint32_t*)data;
-		for (;i < words_count; ++i, word_address += 4, ++words_ptr) {
-			printf("0x%08X : 0x%08X\n", word_address, *words_ptr);
+uint16_t calc_crc16 (uint8_t *buffer, uint32_t size)
+{
+	uint16_t crc = 0, i, j;
+	for (j = 0; j < size; ++j) {
+		crc ^= buffer[j] << 8;
+		for (i = 0; i < 8; ++i) {
+			uint16_t next = crc << 1;
+			if (crc & 0x8000)
+				next ^= 0x1021;
+			crc = next;
 		}
-		switch(bytes_count) {
-			case 1:
-				printf("0x%08X : 0x%02X\n", word_address, *words_ptr & 0xFF);
-				break;
-			case 2:
-				printf("0x%08X : 0x%04X\n", word_address, *words_ptr & 0xFFFF);
-				break;
-			case 3:
-				printf("0x%08X : 0x%06X\n", word_address, *words_ptr & 0xFFFFFF);
-				break;
-			default:
-				break;
-			}
-		}
-		free(data);
 	}
-	return 0;
+	return crc;
 }
 
-int32_t recv_data(int32_t file_descr, uint8_t* buffer, uint32_t size) {
+int32_t recv_data(int32_t file_descr, uint32_t size, uint8_t* buffer) {
     
     int32_t ret_val = 0;
     uint32_t count = 0;
     uint32_t recv_bytes = 0;
-    do {
+	
+	if (buffer == NULL)
+		return -3;
+    
+	do {
         ret_val = read(file_descr, (void*)(buffer + recv_bytes), size - recv_bytes);
 	    if (ret_val < 0) {
 		    if (errno == EAGAIN) {
 			    usleep(300000);
-                ++count;			    
+                ++count;
 		    }
 		    //An error occured (will occur if there are no bytes)
 		    printf("Reading finished with error: %d\n", errno);
@@ -123,28 +109,41 @@ int32_t recv_data(int32_t file_descr, uint8_t* buffer, uint32_t size) {
             count = 0;
         }
 
-    } while (size != recv_bytes && count != STOP_TRIES)
+    } while (size != recv_bytes && count != STOP_TRIES);
     
     if (count == STOP_TRIES) {
         return -2;            
     }
 
-    return recv_bytes;
+	return recv_bytes;
 }
 
 int32_t check_header(header_t *header) {
-    // TODO    
-    return -1;
+	
+	if (header == NULL)
+		return -2;
+	
+	if (header->crc16 == calc_crc16((uint8_t*)(header + sizeof(uint32_t)), sizeof(header_t))) {
+		return 0;
+	}
+	
+	return -1;
 }
 
 int32_t check_data(uint8_t *data, uint32_t size) {
-    // TODO    
-    return -1;
-}
-
-int32_t process_data(uint8_t *data, uint32_t size) {
-    // TODO
-    return -1;
+	
+	if (data == NULL)
+		return -3;
+	
+	if (size <= sizeof(uint32_t)){
+			return -2;
+	}
+	
+	if (*(uint32_t*)(data + size - sizeof(uint32_t)) == calc_crc16(data, size - sizeof(uint32_t))) {
+		return 0;
+	}
+	
+	return -1; 
 }
 
 int32_t main(uint32_t argc, char *argv[]) {
@@ -163,6 +162,7 @@ int32_t main(uint32_t argc, char *argv[]) {
 	// O_NOCTTY - When set and path identifies a terminal device, 
 	// open() shall not cause the terminal device to become the controlling terminal 
 	// for the process. 
+	int32_t fd = -1;
 	fd = open(argv[1], O_RDWR | O_NOCTTY | O_NDELAY); // Open in non blocking read/write mode
 	if ( fd == -1 ) {
 		printf("Error - Unable to open UART.  Ensure it is not in use by another application\n");
@@ -170,16 +170,21 @@ int32_t main(uint32_t argc, char *argv[]) {
 	}
 	
 	printf("Register stop handler\n");
+	
 	register_stop_handler();
+	
 	printf("Configure uart\n");
+	
 	configure_uart(fd);
 
 	printf("Start reading\n");
-    int32_t ret_val = 0;	
-    while (exit_flag == 0) {
+	
+    int32_t ret_val = 0;
+	while (exit_flag == 0) {
 		header_t header;
-        ret_val = recv_data(fd, sizeof(header_t), &header);
+        ret_val = recv_data(fd, sizeof(header_t), (uint8_t*)&header);
 		
+		// TODO Handle broken connection error
         if (ret_val != sizeof(header_t)) {
             // usleep(300000); TODO           
             continue;
@@ -190,25 +195,32 @@ int32_t main(uint32_t argc, char *argv[]) {
         }
         
         if (header.size == 0) {
+			// TODO correct output text
             printf("header.size == 0\n");
             continue;        
         }
+        
         uint8_t* data = (uint8_t*)malloc(header.size);
+        if (data == NULL) {
+			// TODO correct output text
+			printf("Not enough memory\n");
+			return -1;
+		}
+		
+        ret_val = recv_data(fd, header.size, (uint8_t*)data);
         
-        ret_val = recv_data(fd, header->size, data);
-        
-        if (ret_val != header->size) {
+        if (ret_val != header.size) {
             // usleep(300000); TODO          
             free(data);            
             continue;
         }
         
-        if (check_data(data, header->size) != 0) {
+        if (check_data(data, header.size) != 0) {
             free(data);            
             continue;
         }
         
-        process_data(data, header->size /* - sizeof(uint32_t) */);
+        process_data(data, header.size - sizeof(uint32_t));
         
         free(data);
 
