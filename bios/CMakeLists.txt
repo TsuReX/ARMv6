@@ -1,31 +1,26 @@
 cmake_minimum_required(VERSION 2.8)
 
+set(PROJ_NAME arm_bios)
+
 project(arm_bios C ASM)
 
-set(CMAKE_C_COMPILER "arm-linux-gnueabihf-gcc")
-set(CMAKE_C_FLAGS "-mcpu=arm1176jzf-s -fpic -ffreestanding -ggdb -g")
+#set(CMAKE_C_COMPILER "/home/yurchenko/soft/tools/arm-bcm2708/arm-rpi-4.9.3-linux-gnueabihf/bin/arm-linux-gnueabihf-gcc")
+#set(CMAKE_C_FLAGS "-mcpu=arm1176jzf-s -fpic -ffreestanding -ggdb -g")
 
-set(CMAKE_ASM_COMPILER "arm-linux-gnueabihf-gcc")
-set(CMAKE_ASM_FLAGS "-mcpu=arm1176jzf-s -fpic -ffreestanding -ggdb -g")
+#set(CMAKE_ASM_COMPILER "/home/yurchenko/soft/tools/arm-bcm2708/arm-rpi-4.9.3-linux-gnueabihf/bin/arm-linux-gnueabihf-gcc")
+#set(CMAKE_ASM_FLAGS "-mcpu=arm1176jzf-s -fpic -ffreestanding -ggdb -g")
 
-set(C_SRC 	stub.c)
+set(C_SRC	)
 
 set(ASM_SRC	start.S
-		leds.S
-		uart.S
-		exceptions.S
-		specexchandler.S
-		delay.S
-		gpio.S
-		math.S
-		ports.S
-		gpio_test.S
-		timer.S
-		systimer.S
-		printregs.S
-		memory.S)
+		)
 
-include_directories( ${CMAKE_CURRENT_SOURCE_DIR} )
+include_directories("include")
+
+#add_subdirectory("device")
+#add_subdirectory("debug")
+add_subdirectory(arch)
+#add_subdirectory("common")
 
 if ( NOT DEFINED PLATFORM )
     set (PLATFORM "VERSATILE_PB")
@@ -38,12 +33,8 @@ set( CMAKE_EXECUTABLE_SUFFIX .elf )
 
 set( CMAKE_EXE_LINKER_FLAGS "-T ${CMAKE_CURRENT_SOURCE_DIR}/map.ld -nostdlib")
 
-#message(${CMAKE_BINARY_DIR})
-#enable_language(ASM)
+message(${CMAKE_CURRENT_SOURCE_DIR})
 
-add_executable(start ${ASM_SRC} ${C_SRC} )
+add_executable(start ${ASM_SRC} ${C_SRC})
 
-# TODO Add here arm-linux-gnueabihf-objcopy -O binary start kernel.img
-#add_library(start STATIC ${ASM_SRC})
-#target_link_libraries(start)
-#execute_process(COMMAND ${CMD})
+target_link_libraries(start)
