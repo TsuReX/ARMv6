@@ -7,10 +7,10 @@ set(PROJ_NAME arm_bios)
 project(${PROJ_NAME} C ASM)
 
 #set(CMAKE_C_COMPILER "/home/yurchenko/soft/tools/arm-bcm2708/arm-rpi-4.9.3-linux-gnueabihf/bin/arm-linux-gnueabihf-gcc")
-#set(CMAKE_C_FLAGS "-mcpu=arm1176jzf-s -fpic -ffreestanding -ggdb -g")
+set(CMAKE_C_FLAGS "-mcpu=arm1176jzf-s -fpic -ffreestanding -ggdb -g")
 
 #set(CMAKE_ASM_COMPILER "/home/yurchenko/soft/tools/arm-bcm2708/arm-rpi-4.9.3-linux-gnueabihf/bin/arm-linux-gnueabihf-gcc")
-#set(CMAKE_ASM_FLAGS "-mcpu=arm1176jzf-s -fpic -ffreestanding -ggdb -g")
+set(CMAKE_ASM_FLAGS "-mcpu=arm1176jzf-s -fpic -ffreestanding -ggdb -g")
 
 if ( NOT DEFINED PLATFORM )
     set (PLATFORM "VERSATILE_PB")
