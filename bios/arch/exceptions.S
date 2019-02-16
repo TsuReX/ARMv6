@@ -1,3 +1,4 @@
+#include "basemacro.S"
 #include "ports.S"
 
 .equ MAGIC,		0xDEADBEAF

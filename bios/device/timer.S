@@ -3,6 +3,7 @@
 .global enable_timer_irq, disable_timer_irq, clear_timer_pend_exc
 .global enable_timer, disable_timer, setup_timer, set_timer_value
 .global armside_timer_exc_handler
+
 .text
 
 /*

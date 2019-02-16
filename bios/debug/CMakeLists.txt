@@ -1,43 +1,18 @@
 cmake_minimum_required(VERSION 2.8)
 
-project(arm_bios C ASM)
+set(PROJ_NAME debug)
 
-set(CMAKE_C_COMPILER "arm-linux-gnueabihf-gcc")
-set(CMAKE_C_FLAGS "-mcpu=arm1176jzf-s -fpic -ffreestanding -ggdb -g")
+project(${PROJ_NAME})
 
-set(CMAKE_ASM_COMPILER "arm-linux-gnueabihf-gcc")
-set(CMAKE_ASM_FLAGS "-mcpu=arm1176jzf-s -fpic -ffreestanding -ggdb -g")
+set(C_SRC	
+		)
 
-set(C_SRC 	stub.c)
+set(ASM_SRC
+		dbgprint.S
+		memprint.S
+		printregs.S
+		)
 
-set(ASM_SRC	start.S
-		exceptions.S
-		specexchandler.S
-		delay.S
-		math.S
-		memory.S)
+message(${CMAKE_CURRENT_SOURCE_DIR})
 
-include_directories("include")
-add_subdirectory("device")
-add_subdirectory("debug")
-
-if ( NOT DEFINED PLATFORM )
-    set (PLATFORM "VERSATILE_PB")
-endif()
-
-message ("-- Selected platform is ${PLATFORM}")
-add_definitions(-D${PLATFORM})
-
-set( CMAKE_EXECUTABLE_SUFFIX .elf )
-
-set( CMAKE_EXE_LINKER_FLAGS "-T ${CMAKE_CURRENT_SOURCE_DIR}/map.ld -nostdlib")
-
-#message(${CMAKE_BINARY_DIR})
-#enable_language(ASM)
-
-add_executable(start ${ASM_SRC} ${C_SRC} )
-
-# TODO Add here arm-linux-gnueabihf-objcopy -O binary start kernel.img
-#add_library(start STATIC ${ASM_SRC})
-#target_link_libraries(start)
-#execute_process(COMMAND ${CMD})
+add_library(${PROJ_NAME} STATIC ${ASM_SRC} ${C_SRC})
