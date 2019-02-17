@@ -36,6 +36,9 @@
 
 .macro do_checking
 
+	@ Check ccall macro
+	ccall stub_func
+	
 	@ Check UART manipulation functions
 	bl uart_test
 
