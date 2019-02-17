@@ -11,10 +11,10 @@ cmake ../bios/
 
 inside build directory
 
-rm -rf ./*; CC=arm-linux-gnueabihf-gcc cmake ../bios/ -DPLATFORM=RASPBERRY_PI1; make; arm-linux-gnueabihf-strip start.elf -o kernel.img; cp ../bios/.gdbinit .; cp ../prepare-img.sh .
+rm -rf ./*; CC=arm-linux-gnueabihf-gcc cmake ../bios/ -DPLATFORM=RASPBERRY_PI1; make; arm-linux-gnueabihf-strip arm_bios.elf -o kernel.img; cp ../bios/.gdbinit .; cp ../prepare-img.sh .
 
 Running:
-qemu-system-arm -cpu arm1176 -M versatilepb -m 256 -nographic -kernel start -s -S -monitor stdio
+qemu-system-arm -cpu arm1176 -M versatilepb -m 256 -nographic -kernel arm_bios -s -S -monitor stdio
 
 RaspberryPi tools:
 git clone https://github.com/raspberrypi/tools.git

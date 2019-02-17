@@ -1,4 +1,5 @@
 #include "ports.S"
+#include "basemacro.S"
 
 /* .include "ports.S"
  * This construction shouldn't be used.
@@ -153,5 +154,5 @@ entry:
 2:
 	b 2b
 	/* !!!!!!!!!!!!  */
-	b stub_func /* Important to be confident that project can be built with .S and .c files */
+	ccall stub_func /* Important to be confident that project can be built with .S and .c files */
 

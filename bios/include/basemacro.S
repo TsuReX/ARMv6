@@ -20,14 +20,14 @@
 .endm
 
 .macro ccall func
-	stmed sp!, {r0-r14}
+	stmed sp!, {r0-r12, lr}
 
 	and r2, sp, #0x7	@ Mask stack address to calc alignment
 
 	mov r1, #0x0		@ If r1 == 0 that's  sp is aligned 
 	cmp r2, r1
 
-	la r3, \func
+	ldr r3,=\func
 
 	beq 1f
 	b 2f
@@ -41,5 +41,5 @@
 
 3:	add sp, #0x4
 
-4:	ldmed sp!, {r0-r14}
+4:	ldmed sp!, {r0-r12, lr}
 .endm
