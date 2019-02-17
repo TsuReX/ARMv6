@@ -1,4 +1,6 @@
-#include "ports.S"
+#include "basemacro.S"
+#include "dbgprint.h"
+#include "debug.S"
 
 .global undef_handler, svc_smc_handler, pabt_handler, dabt_handler, irq_handler, fiq_handler
 

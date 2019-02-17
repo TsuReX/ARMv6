@@ -1,4 +1,4 @@
-#include "printregs.h"
+#include "dbgprint.h"
 
 .global print_cpsr, print_spsr
 .global print_scr, print_ttbr0, print_ttbr1, print_ttbcr, print_midr
