@@ -8,6 +8,7 @@ project(${PROJ_NAME})
 
 set(C_SRC	
 		stub.c
+		ccalltest.c
 		)
 
 set(ASM_SRC

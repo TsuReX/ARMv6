@@ -34,10 +34,51 @@
 
 .endm
 
+.macro check_ccall
+	@ Stack alignment case 1
+	mov r0, #0x1
+	mov r1, #0x2
+	mov r2, #0x3
+	mov r3, #0x4
+	mov r4, #0x5
+	mov r5, #0xF    @ The sum of r0 - r4
+
+	str r4, [sp]    @Use Full Descending stack!!!
+	mov r6, sp
+	ccall c_test_1
+
+	cmp r0, r5
+	bne failed
+	cmp r6, sp
+	bne failed
+
+	@ Stack alignment case 1
+	mov r0, #0x9
+	mov r1, #0x2
+	mov r2, #0x3
+	mov r3, #0x4
+	mov r4, #0x5
+	mov r5, #0x17    @ The sum of r0 - r4
+
+	mov r6, sp
+	sub sp, #0x4
+	str r4, [sp]    @Use Full Descending stack!!!
+	ccall c_test_1
+	add sp, #0x4
+
+	cmp r0, r5
+	bne failed
+	cmp r6, sp
+	bne failed
+
+failed:
+	b failed
+.endm
+
 .macro do_checking
 
 	@ Check ccall macro
-	ccall stub_func
+	check_ccall
 	
 	@ Check UART manipulation functions
 	bl uart_test
