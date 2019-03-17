@@ -20,26 +20,30 @@
 .endm
 
 .macro ccall func
-	stmed sp!, {r0-r12, lr}
 
-	and r2, sp, #0x7	@ Mask stack address to calc alignment
-
-	mov r1, #0x0		@ If r1 == 0 that's  sp is aligned 
-	cmp r2, r1
-
-	ldr r3,=\func
-
-	beq 1f
-	b 2f
-
-1:	ldr lr, =4f		@ Aligned stack by 8
-	bx r3
-
-2:	sub sp, #0x4		@ Not aligned stack by 8
+	ldr r4,=\func
 	mov lr, pc		@ pc is current instruction address + 8
-	bx r3
+	bx r4
 
-3:	add sp, #0x4
+.endm
 
-4:	ldmed sp!, {r0-r12, lr}
+.macro ccall_prologue size
+	
+	mov r11, sp			@ Save stack frame
+	
+	mov r0, \size
+	sub sp, r0			@ Reserve memory for arguments
+		
+	ldr r0, =0xFFFFFFF8	@ Alignment mask
+	mov r2, #0x0
+	and r1, sp, #0x7	@ Is alignment by 8?
+	cmp r1, r2
+	andne sp, r0		@ Align stack by 8
+	
+.endm
+
+.macro ccall_epilogue
+	
+	mov sp, r11
+	
 .endm

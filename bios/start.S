@@ -36,43 +36,70 @@
 
 .macro check_ccall
 	@ Stack alignment case 1
-	mov r0, #0x1
-	mov r1, #0x2
-	mov r2, #0x3
-	mov r3, #0x4
-	mov r4, #0x5
-	mov r5, #0xF    @ The sum of r0 - r4
+	
+	ccall_prologue #28
+	
+	@ Form first register arguments
 
-	str r4, [sp]    @Use Full Descending stack!!!
-	mov r6, sp
+	ldr r0, =arg_array_src
+	ldr r1, =arg_array_dst
+	ldr r2, =0x87654321
+	ldr r3, =0x789ABCDE
+	
+	@ Form remaining stack arguments
+	
+	ldrd r4, [r0, #0x00]	@ Load into r7-r8 4th argument
+	strd r4, [sp, #0x00]	@ Save 4th argument
+	
+	ldr r4, [r0, #0x08]		@ Load into r7-r8 5th argument
+	str r4, [sp, #0x08]		@ Save 5th argument
+	
+	ldrd r4, [r0, #0x10]	@ Load into r7-r8 6th argument
+	strd r4, [sp, #0x10]	@ Save 6th argument
+	
+	ldr r4, [r0, #0x18]		@ Load into r7-r8 7th argument
+	str r4, [sp, #0x18]		@ Save 7th argument
+
 	ccall c_test_1
 
-	cmp r0, r5
-	bne failed
-	cmp r6, sp
-	bne failed
+	ccall_epilogue
 
+	add r0, r1
+	ldr r1, =0xFFFFFFFF
+	cmp r0, r1
+	bne failed1	
+	
+	@ ***********************************************
+	
 	@ Stack alignment case 1
-	mov r0, #0x9
-	mov r1, #0x2
-	mov r2, #0x3
-	mov r3, #0x4
-	mov r4, #0x5
-	mov r5, #0x17    @ The sum of r0 - r4
-
-	mov r6, sp
+	
 	sub sp, #0x4
-	str r4, [sp]    @Use Full Descending stack!!!
-	ccall c_test_1
-	add sp, #0x4
+	
+	ccall_prologue #0
+	
+	ldr r0, =arg_array_src
+	ldr r1, =arg_array_dst
+	ldr r2, =arg_array_res
+	mov r3, #0x8
+	
+	ccall c_test_2
+	
+	ccall_epilogue
 
-	cmp r0, r5
-	bne failed
-	cmp r6, sp
-	bne failed
+	ldr r1, =0xBABADEDA
+	cmp r0, r1
+	bne failed2
 
-failed:
-	b failed
+	b ok
+
+failed1:
+	b failed1
+
+failed2:
+	b failed2
+
+ok:
+
 .endm
 
 .macro do_checking
@@ -139,8 +166,6 @@ failed:
 
 .endm
 
-.text
-
 .macro setup_exc
 
 	@ Setup exceptions vector to 0x0
@@ -169,6 +194,28 @@ failed:
 	bl enable_irq @ TODO What does it do?
 
 .endm
+
+
+.data
+arg_array_src:
+s4:			.word 0x00010002, 0x00020003
+s5:			.word 0x00030004, 0x00040005
+s6:			.word 0x00050006, 0x00060007
+s7:			.word 0x00070008, 0x00080009
+
+arg_array_dst:
+d4:			.word 0x88888888, 0x77777777
+d5:			.word 0x66666666, 0x55555555
+d6:			.word 0x44444444, 0x33333333
+d7:			.word 0x22222222, 0x11111111
+
+arg_array_res:
+res4:			.word 0x00010002, 0x00020003
+res5:			.word 0x00030004, 0x00000000
+res6:			.word 0x00050006, 0x00060007
+res7:			.word 0x00070008, 0x00000000
+
+.text
 
 /*
  * Entry point
@@ -199,4 +246,3 @@ entry:
 	b 2b
 	/* !!!!!!!!!!!!  */
 	ccall stub_func /* Important to be confident that project can be built with .S and .c files */
-
