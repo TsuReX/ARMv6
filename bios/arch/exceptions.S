@@ -158,7 +158,7 @@ setup_pabt_handler:
 
 	save
 
-	ldr r1, =svc_smc_handler_fcn
+	ldr r1, =pabt_handler_fcn
 	str r0, [r1]
 
 	restore
