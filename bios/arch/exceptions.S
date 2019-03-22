@@ -19,6 +19,22 @@ irq_handler_fcn:	.word  MAGIC
 fiq_handler_fcn:	.word  MAGIC
 _func_ptrs_end:	@ For debug
 
+.macro call_handler pptr
+
+	ldr r2, =\pptr	@ Get address of pointer
+	ldr r2, [r2]	@ Resolve pointer to get address of function
+	ldr r3, =MAGIC	@ Get magic value of empty pointer
+	mov lr, pc		@ Save return address
+	cmp r2, r3		@ Compare the address of function and the magic value
+	bne 1f
+
+	bl print_halt
+	b .
+
+1:	bx r2			@ Call funcion if address of funtion is valid
+
+.endm
+
 .text
 
 /*
@@ -213,9 +229,9 @@ setup_fiq_handler:
  * Reset handler. The function is an entry point in programm after CPU was reset
  */
 reset_exc:
-	@ TODO What address CPU jumps during exit ???
-	@ I think that here should be jump to entry point
-	b .
+	@ What address CPU jumps during exit ???
+	@ I think that here should be jump to the entry point
+	b entry
 
 /*
  * Undefined instruction exception default handler
@@ -228,12 +244,8 @@ undef_exc:
 	bl print_cpsr
 	bl print_spsr
 
-	ldr r0, =undef_handler_fcn
-	ldr r1, =MAGIC
-	cmp r0, r1
-	blne undef_handler_fcn
-	bl print_halt
-	b .
+	call_handler undef_handler_fcn
+
 
 	restore
 	movs pc, r14
@@ -251,12 +263,7 @@ svc_smc_exc:
 	bl print_cpsr
 	bl print_spsr
 
-	ldr r0, =svc_smc_handler_fcn
-	ldr r1, =MAGIC
-	cmp r0, r1
-	blne svc_smc_handler_fcn
-	bl print_halt
-	b .
+	call_handler svc_smc_handler_fcn
 
 	restore
 	movs pc, r14
@@ -272,12 +279,8 @@ pabt_exc:
 	bl print_cpsr
 	bl print_spsr
 
-	ldr r0, =pabt_handler_fcn
-	ldr r1, =MAGIC
-	cmp r0, r1
-	blne pabt_handler_fcn
-	bl print_halt
-	b .
+	call_handler pabt_handler_fcn
+
 
 	restore
 	subs pc, r14, #0x4
@@ -293,18 +296,13 @@ dabt_exc:
 	bl print_cpsr
 	bl print_spsr
 
-	ldr r0, =dabt_handler_fcn
-	ldr r1, =MAGIC
-	cmp r0, r1
-	blne dabt_handler_fcn
-	bl print_halt
-	b .
+	call_handler dabt_handler_fcn
 
 	restore
 	subs pc, r14, #0x8
 
-	@subs pc, r14, #0x4	@ Use this exit way in case 
-						@ when interrupted instruction isn't needed to be reexecuted
+	@subs pc, r14, #0x4		@ Use this exit way in case
+					@ when interrupted instruction isn't needed to be reexecuted
 
 /*
  * Interrupt default handler
@@ -317,14 +315,7 @@ irq_exc:
 	bl print_cpsr
 	bl print_spsr
 
-	ldr r0, =irq_handler_fcn	@ Get address of pointer
-	ldr r0, [r0]				@ Resolve pointer to get address of function
-	ldr r1, =MAGIC				@ Get magic value of empty pointer
-	cmp r0, r1					@ Compare the address of function and the magic value
-	mov lr, pc			@ Save return address
-	bxne r0				@ Call funcion if address of funtion is valid
-	bl print_halt
-	b .
+	call_handler irq_handler_fcn
 
 	restore
 	subs pc, r14, #0x4
@@ -340,12 +331,7 @@ fiq_exc:
 	bl print_cpsr
 	bl print_spsr
 
-	ldr r0, =fiq_handler_fcn
-	ldr r1, =MAGIC
-	cmp r0, r1
-	blne fiq_handler_fcn
-	bl print_halt
-	b .
+	call_handler fiq_handler_fcn
 
 	fiq_restore
 	subs pc, r14, #0x4
