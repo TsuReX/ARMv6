@@ -13,6 +13,7 @@ set(ASM_SRC
 		exceptions.S
 		specexchandler.S
 		memory.S
+		memoryaux.c
 		)
 
 include_directories("../include")

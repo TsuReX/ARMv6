@@ -36,30 +36,30 @@
 
 .macro check_ccall
 	@ Stack alignment case 1
-	
+
 	ccall_prologue #28
-	
+
 	@ Form first register arguments
 
 	ldr r0, =arg_array_src
 	ldr r1, =arg_array_dst
 	ldr r2, =0x87654321
 	ldr r3, =0x789ABCDE
-	
+
 	@ Form remaining stack arguments
-	
+
 	ldrd r4, [r0, #0x00]	@ Load into r7-r8 4th argument
 	strd r4, [sp, #0x00]	@ Save 4th argument
-	
+
 	ldr r4, [r0, #0x08]		@ Load into r7-r8 5th argument
 	str r4, [sp, #0x08]		@ Save 5th argument
-	
+
 	ldrd r4, [r0, #0x10]	@ Load into r7-r8 6th argument
 	strd r4, [sp, #0x10]	@ Save 6th argument
-	
+
 	ldr r4, [r0, #0x18]		@ Load into r7-r8 7th argument
 	str r4, [sp, #0x18]		@ Save 7th argument
-
+	
 	ccall c_test_1
 
 	ccall_epilogue
@@ -68,22 +68,22 @@
 	ldr r1, =0xFFFFFFFF
 	cmp r0, r1
 	bne failed1	
-	
+
 	@ ***********************************************
-	
+
 	@ Stack alignment case 1
-	
+
 	sub sp, #0x4
-	
+
 	ccall_prologue #0
-	
+
 	ldr r0, =arg_array_src
 	ldr r1, =arg_array_dst
 	ldr r2, =arg_array_res
 	mov r3, #0x8
-	
+
 	ccall c_test_2
-	
+
 	ccall_epilogue
 
 	ldr r1, =0xBABADEDA
@@ -106,7 +106,9 @@ ok:
 
 	@ Check ccall macro
 	check_ccall
-	
+
+	check_memcpy
+
 	@ Check UART manipulation functions
 	bl uart_test
 
@@ -126,7 +128,7 @@ ok:
 
 .endm
 
-.macro test_irq_vec
+.macro check_irq_vec
 
 	save
 
@@ -143,25 +145,42 @@ ok:
 
 .endm
 
-.macro test_memcpy_memfill
+.macro check_memcpy
 
 	save
+@***************************************
+@ Prepare memory area
 
-	ldr r0, =0x10000
-	mov r1, #0x123
-	mov r2, #0x1E
-	bl memfill
+	ccall_prologue #0
 
-	bl memprint
+	ldr r0, =memtest_region_begin
+	ldr r1, =0xFFFF0000
+	ldr r2, =1024
 
-	ldr r1, =0x20000
-	mov r2, #0x123
+	ccall memfillinc
+	ccall_epilogue
+@***************************************
+	ldr r0, =memtest_region_begin
+	ldr r2, =offset1
+	add r0, r2
+
+	mov r1, r0
+	ldr r2, =offset3
+	add r1, r2
+
+	mov r2, #128
 	bl memcpy
+@***************************************
+	ldr r0, =memtest_region_begin
+	ldr r2, =offset2
+	add r0, r2
 
-	mov r0, r1
-	mov r1, r2
-	bl memprint
+	mov r1, r0
+	ldr r2, =offset4
+	add r1, r2
 
+	mov r2, #7
+	bl memcpy
 	restore
 
 .endm
@@ -195,6 +214,10 @@ ok:
 
 .endm
 
+.equ offset1, 0
+.equ offset2, 3
+.equ offset3, 1024
+.equ offset4, 2051
 
 .data
 arg_array_src:
@@ -215,6 +238,15 @@ res5:			.word 0x00030004, 0x00000000
 res6:			.word 0x00050006, 0x00060007
 res7:			.word 0x00070008, 0x00000000
 
+.org 1024
+memtest_region_begin:
+.word	0x01020304
+.rept   4094
+.word	0xEEEEEEEE
+.endr
+.word	0x50607080
+memtest_region_end:
+
 .text
 
 /*
@@ -227,7 +259,7 @@ entry:
 	@ The system now is in System mode - working mode
 	do_checking
 	@ Print registers
-	print_regs
+@	print_regs
 	@ Setup default exceptions' handlers
 	setup_exc
 
