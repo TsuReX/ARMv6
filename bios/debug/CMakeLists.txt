@@ -13,6 +13,7 @@ set(ASM_SRC
 		dbgprint.S
 		memprint.S
 		printregs.S
+		check.S
 		)
 
 include_directories("../include")

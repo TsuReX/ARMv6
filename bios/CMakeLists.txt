@@ -16,8 +16,13 @@ if ( NOT DEFINED PLATFORM )
     set (PLATFORM "VERSATILE_PB")
 endif()
 
-message ("-- MSG: Selected platform is ${PLATFORM}")
 add_definitions(-D${PLATFORM})
+message ("-- MSG: Selected platform is ${PLATFORM}")
+
+if ( DEFINED CHECKING )
+    add_definitions(-DCHECKING)
+    message ("-- MSG: Checking mechanisms are activated")
+endif()
 
 set( CMAKE_EXECUTABLE_SUFFIX .elf )
 set( CMAKE_EXE_LINKER_FLAGS "-T ${CMAKE_CURRENT_SOURCE_DIR}/map.ld -nostdlib")
