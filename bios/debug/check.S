@@ -2,18 +2,57 @@
 
 .global check
  
-.equ src1, 0
-.equ dst1, 1281
-.equ src2, 2049
-.equ dst2, 2080
+.equ 	src1, 0
+.equ 	dst1, 1281
+.equ 	src2, 2049
+.equ 	dst2, 2080
 
-.equ count1, 1027
-.equ count2, 7
+.equ 	count1, 1027
+.equ 	count2, 7
 
-.equ filler, 0xFFFF0000
-.equ count, 256
+.equ 	filler, 0xFFFF0000
+.equ 	count, 256
 
-.macro check_ccall
+.data
+
+arg_array_src:
+s4:		.word 0x00010002, 0x00020003
+s5:		.word 0x00030004, 0x00040005
+s6:		.word 0x00050006, 0x00060007
+s7:		.word 0x00070008, 0x00080009
+
+arg_array_dst:
+d4:		.word 0x88888888, 0x77777777
+d5:		.word 0x66666666, 0x55555555
+d6:		.word 0x44444444, 0x33333333
+d7:		.word 0x22222222, 0x11111111
+
+arg_array_res:
+res4:	.word 0x00010002, 0x00020003
+res5:	.word 0x00030004, 0x00000000
+res6:	.word 0x00050006, 0x00060007
+res7:	.word 0x00070008, 0x00000000
+
+.org 1024
+
+memtest_region_begin:
+		.word	0x01020304
+
+		.rept   4094
+		.word	0xEEEEEEEE
+		.endr
+
+		.word	0x50607080
+memtest_region_end:
+
+@ End .data
+
+.text
+
+check_ccall:
+
+	save
+
 	@ Stack alignment case 1
 
 	ccall_prologue #28
@@ -78,25 +117,12 @@ failed2:
 	b failed2
 
 ok:
+	restore
+	mov pc, lr
+	
+@ check_ccall
 
-.endm @ check_ccall
-
-.macro do_checking
-
-	@ Check ccall macro
-	check_ccall
-
-	check_memcpy
-
-	@ Check UART manipulation functions
-	bl uart_test
-
-	@ Check GPIO manipulation functions
-	@ bl gpio_test
-
-.endm @do_checking
-
-.macro check_irq_vec
+check_irq_vec:
 
 	save
 
@@ -110,10 +136,11 @@ ok:
 	bl memprint
 
 	restore
+	mov pc, lr
 
-.endm @ check_irq_vec
+@ check_irq_vec
 
-.macro check_memcpy
+check_memcpy:
 
 	save
 @***************************************
@@ -141,7 +168,7 @@ ok:
 
 	ldr r2, =count1
 	bl memcpy
-	
+
 @***************************************
 @ Copying case 2
 
@@ -155,48 +182,36 @@ ok:
 
 	ldr r2, =count2
 	bl memcpy
+
 	restore
+	mov pc, lr
 
-.endm @ check_memcpy
+@ check_memcpy
 
-.data
+do_checking:
 
-arg_array_src:
-s4:		.word 0x00010002, 0x00020003
-s5:		.word 0x00030004, 0x00040005
-s6:		.word 0x00050006, 0x00060007
-s7:		.word 0x00070008, 0x00080009
+	save
 
-arg_array_dst:
-d4:		.word 0x88888888, 0x77777777
-d5:		.word 0x66666666, 0x55555555
-d6:		.word 0x44444444, 0x33333333
-d7:		.word 0x22222222, 0x11111111
+	@ Check ccall macro
+	bl check_ccall
 
-arg_array_res:
-res4:	.word 0x00010002, 0x00020003
-res5:	.word 0x00030004, 0x00000000
-res6:	.word 0x00050006, 0x00060007
-res7:	.word 0x00070008, 0x00000000
+	bl check_memcpy
 
-.org 1024
+	@ Check UART manipulation functions
+	bl uart_test
 
-memtest_region_begin:
-		.word	0x01020304
+	@ Check GPIO manipulation functions
+	@ bl gpio_test
 
-		.rept   4094
-		.word	0xEEEEEEEE
-		.endr
+	restore
+	mov pc, lr
 
-		.word	0x50607080
-memtest_region_end:
-
-@ End .data
-
-.text
+@do_checking
 
 check:
 	save
+	
+	bl do_checking
 	
 	restore
 	mov pc, lr

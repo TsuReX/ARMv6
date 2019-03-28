@@ -21,6 +21,7 @@ cp ../prepare-img.sh .
 # More correct variant
 rm -rf ./*; \
 cmake ../bios/ \
+-DCHECKING \
 -DCMAKE_C_COMPILER=arm-linux-gnueabihf-gcc -DPLATFORM=RASPBERRY_PI1; \
 make; \
 arm-linux-gnueabihf-strip arm_bios.elf -o kernel.img; \
