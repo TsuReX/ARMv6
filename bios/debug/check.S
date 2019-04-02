@@ -4,10 +4,10 @@
  
 .equ 	src1, 0
 .equ 	dst1, 1281
-.equ 	src2, 2049
+.equ 	src2, 9
 .equ 	dst2, 2080
 
-.equ 	count1, 1027
+.equ 	count1, 1017
 .equ 	count2, 7
 
 .equ 	filler, 0xFFFF0000
@@ -159,12 +159,11 @@ check_memcpy:
 @***************************************
 @ Copying case 1
 
-	ldr r0, =memtest_region_begin
-	ldr r2, =src2
+	ldr r2, =memtest_region_begin
+	ldr r0, =src1
 	add r0, r2
 
-	mov r1, r0
-	ldr r2, =dst1
+	ldr r1, =dst1
 	add r1, r2
 
 	ldr r2, =count1
@@ -173,12 +172,11 @@ check_memcpy:
 @***************************************
 @ Copying case 2
 
-	ldr r0, =memtest_region_begin
-	ldr r2, =src2
+	ldr r2, =memtest_region_begin
+	ldr r0, =src2
 	add r0, r2
 
-	mov r1, r0
-	ldr r2, =dst2
+	ldr r1, =dst2
 	add r1, r2
 
 	ldr r2, =count2
