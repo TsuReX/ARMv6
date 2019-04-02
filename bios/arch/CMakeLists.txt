@@ -7,7 +7,7 @@ set(PROJ_NAME arch)
 project(${PROJ_NAME} C ASM)
 
 set(C_SRC	
-		)
+		c_memcpy.c)
 
 set(ASM_SRC
 		exceptions.S
