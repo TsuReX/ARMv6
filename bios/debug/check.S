@@ -159,28 +159,36 @@ check_memcpy:
 @***************************************
 @ Copying case 1
 
+	ccall_prologue #0
+
 	ldr r2, =memtest_region_begin
-	ldr r0, =src1
+	ldr r0, =dst1
 	add r0, r2
 
-	ldr r1, =dst1
+	ldr r1, =src1
 	add r1, r2
 
 	ldr r2, =count1
-	bl memcpy
+	ccall c_memcpy
+
+	ccall_epilogue
 
 @***************************************
 @ Copying case 2
 
+	ccall_prologue #0
+
 	ldr r2, =memtest_region_begin
-	ldr r0, =src2
+	ldr r0, =dst2
 	add r0, r2
 
-	ldr r1, =dst2
+	ldr r1, =src2
 	add r1, r2
 
 	ldr r2, =count2
-	bl memcpy
+	ccall c_memcpy
+
+	ccall_epilogue
 
 	restore
 	mov pc, lr
