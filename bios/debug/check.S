@@ -117,6 +117,7 @@ failed2:
 	b failed2
 
 ok:
+	add sp, #0x4
 	restore
 	mov pc, lr
 	

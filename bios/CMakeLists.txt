@@ -13,15 +13,17 @@ set(CMAKE_C_FLAGS "-mcpu=arm1176jzf-s -fpic -ffreestanding -ggdb -g")
 set(CMAKE_ASM_FLAGS "-mcpu=arm1176jzf-s -fpic -ffreestanding -ggdb -g")
 
 if ( NOT DEFINED PLATFORM )
-    set (PLATFORM "VERSATILE_PB")
+	set (PLATFORM "VERSATILE_PB")
 endif()
 
 add_definitions(-D${PLATFORM})
 message ("-- MSG: Selected platform is ${PLATFORM}")
 
-if ( DEFINED CHECKING )
-    add_definitions(-DCHECKING)
-    message ("-- MSG: Checking mechanisms are activated")
+
+if (DEFINED CHECKING)
+	set (CHECKING "CHECKING")
+	add_definitions(-D${CHECKING})
+	message ("-- MSG: Checking mechanisms are activated")
 endif()
 
 set( CMAKE_EXECUTABLE_SUFFIX .elf )

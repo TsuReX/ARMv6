@@ -21,7 +21,7 @@ cp ../prepare-img.sh .
 # More correct variant
 rm -rf ./*; \
 cmake ../bios/ \
--DCHECKING \
+-DCHECKING=1 \
 -DCMAKE_C_COMPILER=arm-linux-gnueabihf-gcc -DPLATFORM=RASPBERRY_PI1; \
 make; \
 arm-linux-gnueabihf-strip arm_bios.elf -o kernel.img; \
@@ -31,7 +31,7 @@ cp ../prepare-img.sh .
 # Running:
 qemu-system-arm \
 -cpu arm1176 -M versatilepb -m 256 -nographic -s -S -monitor stdio \
--kernel arm_bios
+-kernel arm_bios.elf
 
 # RaspberryPi tools:
 git clone https://github.com/raspberrypi/tools.git
