@@ -19,7 +19,6 @@ endif()
 add_definitions(-D${PLATFORM})
 message ("-- MSG: Selected platform is ${PLATFORM}")
 
-
 if (DEFINED CHECKING)
 	set (CHECKING "CHECKING")
 	add_definitions(-D${CHECKING})

@@ -85,7 +85,7 @@ check_ccall:
 	add r0, r1
 	ldr r1, =0xFFFFFFFF
 	cmp r0, r1
-	bne failed1	
+	bne failed1
 
 	@ ***********************************************
 
@@ -120,7 +120,7 @@ ok:
 	add sp, #0x4
 	restore
 	mov pc, lr
-	
+
 @ check_ccall
 
 check_irq_vec:
@@ -169,8 +169,8 @@ check_memcpy:
 	add r1, r2
 
 	ldr r2, =count1
-	ccall c_memcpy
 
+	ccall memcpy
 	ccall_epilogue
 
 @***************************************
@@ -186,7 +186,7 @@ check_memcpy:
 	add r1, r2
 
 	ldr r2, =count2
-	ccall c_memcpy
+	ccall memcpy
 
 	ccall_epilogue
 
@@ -217,8 +217,8 @@ do_checking:
 
 check:
 	save
-	
+
 	bl do_checking
-	
+
 	restore
 	mov pc, lr

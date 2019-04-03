@@ -1,6 +1,10 @@
 #include "basemacro.S"
 
-.global memcpy, memfill
+.global memfill
+
+#ifdef MEMCPY_ASM
+.global memcpy
+#endif //MEMCPY_ASM
 
 .text
 
