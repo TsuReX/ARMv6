@@ -33,13 +33,13 @@ memcpy:
 	b 1b
 
 copyby4: @ Copy by 4 bytes
-	and r2, r2, #0x1F	@ Elapsed count of bytes
+	and r5, r2, #0x1F	@ Elapsed count of bytes
 	mov r4, #0x2
-	mov r3, r2, lsr r4	@ Count of 4 bytes blocks
+	mov r3, r5, lsr r4	@ Count of 4 bytes blocks
 
 2:	@ Copy by 4 bytes loop
 	cmp r3, #0x0 
-	beq 3f
+	beq copyby1
 	ldr r5, [r1], #0x4
 	str r5, [r0], #0x4
 	sub r3, r3, #0x1
@@ -57,7 +57,7 @@ copyby1: @ Copy by 1 byte
 	b 3b
 
 4:
-	sub r0, r1, r2		@ Return destination address
+	sub r0, r2			@ Return destination address
 
 	add sp, sp, #0x4
 	ldmia sp!, {r3-r12}
