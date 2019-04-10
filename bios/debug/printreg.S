@@ -1,4 +1,5 @@
-#include "dbgprint.h"
+#include "printreg.h"
+#include "basemacro.S"
 
 .global print_cpsr, print_spsr
 .global print_scr, print_ttbr0, print_ttbr1, print_ttbcr, print_midr
@@ -15,10 +16,13 @@ print_halt:
 	stmdb sp!, {r0, lr}
 	sub sp, sp, #0x4
 
-	mrs r1, cpsr
-	ldr r0, =HALT
-	bl uart_send4
-	bl uart_send4
+	mrs r0, cpsr
+	ldr r1, =REG
+	ldr r2, =HALT
+
+	ccall_prologue #0
+	ccall memprint
+	ccall_epilogue
 
 	add sp, sp, #0x4
 	ldmia sp!, {r0, lr}
@@ -29,10 +33,13 @@ print_undef:
 	stmdb sp!, {r0, lr}
 	sub sp, sp, #0x4
 
-	mrs r1, cpsr
-	ldr r0, =UNDEF
-	bl uart_send4
-	bl uart_send4
+	mrs r0, cpsr
+	ldr r1, =REG
+	ldr r2, =UNDEF
+
+	ccall_prologue #0
+	ccall memprint
+	ccall_epilogue
 
 	add sp, sp, #0x4
 	ldmia sp!, {r0, lr}
@@ -43,10 +50,13 @@ print_svc_smc:
 	stmdb sp!, {r0, lr}
 	sub sp, sp, #0x4
 
-	mrs r1, cpsr
-	ldr r0, =SVMC
-	bl uart_send4
-	bl uart_send4
+	mrs r0, cpsr
+	ldr r1, =REG
+	ldr r2, =SVMC
+
+	ccall_prologue #0
+	ccall memprint
+	ccall_epilogue
 
 	add sp, sp, #0x4
 	ldmia sp!, {r0, lr}
@@ -57,10 +67,13 @@ print_pabt:
 	stmdb sp!, {r0, lr}
 	sub sp, sp, #0x4
 
-	mrs r1, cpsr
-	ldr r0, =PABT
-	bl uart_send4
-	bl uart_send4
+	mrs r0, cpsr
+	ldr r1, =REG
+	ldr r2, =PABT
+
+	ccall_prologue #0
+	ccall memprint
+	ccall_epilogue
 
 	add sp, sp, #0x4
 	ldmia sp!, {r0, lr}
@@ -71,10 +84,13 @@ print_dabt:
 	stmdb sp!, {r0, lr}
 	sub sp, sp, #0x4
 
-	mrs r1, cpsr
-	ldr r0, =DABT
-	bl uart_send4
-	bl uart_send4
+	mrs r0, cpsr
+	ldr r1, =REG
+	ldr r2, =DABT
+
+	ccall_prologue #0
+	ccall memprint
+	ccall_epilogue
 
 	add sp, sp, #0x4
 	ldmia sp!, {r0, lr}
@@ -85,10 +101,13 @@ print_irq:
 	stmdb sp!, {r0, lr}
 	sub sp, sp, #0x4
 
-	mrs r1, cpsr
-	ldr r0, =IRQ
-	bl uart_send4
-	bl uart_send4
+	mrs r0, cpsr
+	ldr r1, =REG
+	ldr r2, =IRQ
+
+	ccall_prologue #0
+	ccall memprint
+	ccall_epilogue
 
 	add sp, sp, #0x4
 	ldmia sp!, {r0, lr}
@@ -99,10 +118,13 @@ print_fiq:
 	stmdb sp!, {r0, lr}
 	sub sp, sp, #0x4
 
-	mrs r1, cpsr
-	ldr r0, =FIQ
-	bl uart_send4
-	bl uart_send4
+	mrs r0, cpsr
+	ldr r1, =REG
+	ldr r2, =FIQ
+
+	ccall_prologue #0
+	ccall memprint
+	ccall_epilogue
 
 	add sp, sp, #0x4
 	ldmia sp!, {r0, lr}
@@ -119,11 +141,13 @@ print_cpsr:
 	stmdb sp!, {r0, lr}
 	sub sp, sp, #0x4
 
-	mrs r1, cpsr
-	ldr r0, =CPSR
-	bl uart_send4
-	mov r0, r1
-	bl uart_send4
+	mrs r0, cpsr
+	ldr r1, =REG
+	ldr r2, =CPSR
+
+	ccall_prologue #0
+	ccall memprint
+	ccall_epilogue
 
 	add sp, sp, #0x4
 	ldmia sp!, {r0, lr}
@@ -138,11 +162,13 @@ print_spsr:
 	stmdb sp!, {r0, lr}
 	sub sp, sp, #0x4
 
-	mrs r1, spsr
-	ldr r0, =SPSR
-	bl uart_send4
-	mov r0, r1
-	bl uart_send4
+	mrs r0, spsr
+	ldr r1, =REG
+	ldr r2, =SPSR
+
+	ccall_prologue #0
+	ccall memprint
+	ccall_epilogue
 
 	add sp, sp, #0x4
 	ldmia sp!, {r0, lr}
@@ -156,12 +182,14 @@ print_scr:
 
 	stmdb sp!, {r0, lr}
 	sub sp, sp, #0x4
-	
-	mrc p15, 0, r1, c1, c1, 0
-	ldr r0, =SCR
-	bl uart_send4
-	mov r0, r1
-	bl uart_send4
+
+	mrc p15, 0, r0, c1, c1, 0
+	ldr r1, =REG
+	ldr r2, =SCR
+
+	ccall_prologue #0
+	ccall memprint
+	ccall_epilogue
 
 	add sp, sp, #0x4
 	ldmia sp!, {r0, lr}
@@ -177,10 +205,12 @@ print_ttbr0:
 	sub sp, sp, #0x4
 
 	mrc p15, 0, r0, c2, c0, 0
-	ldr r0, =TTBR0
-	bl uart_send4
-	mov r0, r1
-	bl uart_send4
+	ldr r1, =REG
+	ldr r2, =TTBR0
+
+	ccall_prologue #0
+	ccall memprint
+	ccall_epilogue
 
 	add sp, sp, #0x4
 	ldmia sp!, {r0, lr}
@@ -196,10 +226,12 @@ print_ttbr1:
 	sub sp, sp, #0x4
 
 	mrc p15, 0, r0, c2, c0, 1
-	ldr r0, =TTBR1
-	bl uart_send4
-	mov r0, r1
-	bl uart_send4
+	ldr r1, =REG
+	ldr r2, =TTBR1
+
+	ccall_prologue #0
+	ccall memprint
+	ccall_epilogue
 
 	add sp, sp, #0x4
 	ldmia sp!, {r0, lr}
@@ -215,10 +247,12 @@ print_ttbcr:
 	sub sp, sp, #0x4
 
 	mrc p15, 0, r0, c2, c0, 2
-	ldr r0, =TTBCR
-	bl uart_send4
-	mov r0, r1
-	bl uart_send4
+	ldr r1, =REG
+	ldr r2, =TTBCR
+
+	ccall_prologue #0
+	ccall memprint
+	ccall_epilogue
 
 	add sp, sp, #0x4
 	ldmia sp!, {r0, lr}
@@ -234,10 +268,12 @@ print_midr:
 	sub sp, sp, #0x4
 
 	mrc p15, 0, r0, c0, c0, 0
-	ldr r0, =MIDR
-	bl uart_send4
-	mov r0, r1
-	bl uart_send4
+	ldr r1, =REG
+	ldr r2, =MIDR
+
+	ccall_prologue #0
+	ccall memprint
+	ccall_epilogue
 
 	add sp, sp, #0x4
 	ldmia sp!, {r0, lr}
@@ -253,10 +289,12 @@ print_dacr:
 	sub sp, sp, #0x4
 
 	mrc p15, 0, r0, c3, c0, 0
-	ldr r0, =DACR
-	bl uart_send4
-	mov r0, r1
-	bl uart_send4
+	ldr r1, =REG
+	ldr r2, =DACR
+
+	ccall_prologue #0
+	ccall memprint
+	ccall_epilogue
 
 	add sp, sp, #0x4
 	ldmia sp!, {r0, lr}
@@ -272,10 +310,12 @@ print_nsacr:
 	sub sp, sp, #0x4
 
 	mrc p15, 0, r0, c1, c1, 2
-	ldr r0, =NSACR
-	bl uart_send4
-	mov r0, r1
-	bl uart_send4
+	ldr r1, =REG
+	ldr r2, =NSACR
+
+	ccall_prologue #0
+	ccall memprint
+	ccall_epilogue
 
 	add sp, sp, #0x4
 	ldmia sp!, {r0, lr}
@@ -289,12 +329,14 @@ print_tcmsr:
 
 	stmdb sp!, {r0, lr}
 	sub sp, sp, #0x4
-	
+
 	mrc p15, 0, r0, c0, c0, 2
-	ldr r0, =TCMSR
-	bl uart_send4
-	mov r0, r1
-	bl uart_send4
+	ldr r1, =REG
+	ldr r2, =TCMSR
+
+	ccall_prologue #0
+	ccall memprint
+	ccall_epilogue
 
 	add sp, sp, #0x4
 	ldmia sp!, {r0, lr}
@@ -310,10 +352,12 @@ print_itcmr:
 	sub sp, sp, #0x4
 
 	mrc p15, 0, r0, c9, c1, 1
-	ldr r0, =ITCMR
-	bl uart_send4
-	mov r0, r1
-	bl uart_send4
+	ldr r1, =REG
+	ldr r2, =ITCMR
+
+	ccall_prologue #0
+	ccall memprint
+	ccall_epilogue
 
 	add sp, sp, #0x4
 	ldmia sp!, {r0, lr}
@@ -329,10 +373,12 @@ print_dtcmr:
 	sub sp, sp, #0x4
 
 	mrc p15, 0, r0, c9, c1, 0
-	ldr r0, =DTCMR
-	bl uart_send4
-	mov r0, r1
-	bl uart_send4
+	ldr r1, =REG
+	ldr r2, =DTCMR
+
+	ccall_prologue #0
+	ccall memprint
+	ccall_epilogue
 
 	add sp, sp, #0x4
 	ldmia sp!, {r0, lr}
@@ -348,10 +394,12 @@ print_tlbtr:
 	sub sp, sp, #0x4
 
 	mrc p15, 0, r0, c0, c0, 3
-	ldr r0, =TLBTR
-	bl uart_send4
-	mov r0, r1
-	bl uart_send4
+	ldr r1, =REG
+	ldr r2, =TLBTR
+
+	ccall_prologue #0
+	ccall memprint
+	ccall_epilogue
 
 	add sp, sp, #0x4
 	ldmia sp!, {r0, lr}
@@ -367,10 +415,12 @@ print_ctr:
 	sub sp, sp, #0x4
 
 	mrc p15, 0, r0, c0, c0, 1
-	ldr r0, =CTR
-	bl uart_send4
-	mov r0, r1
-	bl uart_send4
+	ldr r1, =REG
+	ldr r2, =CTR
+
+	ccall_prologue #0
+	ccall memprint
+	ccall_epilogue
 
 	add sp, sp, #0x4
 	ldmia sp!, {r0, lr}
@@ -386,12 +436,13 @@ print_cidr:
 	sub sp, sp, #0x4
 
 	mrc p15, 0, r0, c13, c0, 1
-	ldr r0, =CIDR
-	bl uart_send4
-	mov r0, r1
-	bl uart_send4
+	ldr r1, =REG
+	ldr r2, =CIDR
+
+	ccall_prologue #0
+	ccall memprint
+	ccall_epilogue
 
 	add sp, sp, #0x4
 	ldmia sp!, {r0, lr}
 	mov pc, lr
-
