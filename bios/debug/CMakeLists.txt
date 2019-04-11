@@ -6,13 +6,12 @@ set(PROJ_NAME dbg)
 
 project(${PROJ_NAME})
 
-set(C_SRC	
+set(C_SRC
+		memprint.c
 		)
 
 set(ASM_SRC
-		dbgprint.S
-		memprint.S
-		printregs.S
+		printreg.S
 		check.S
 		)
 

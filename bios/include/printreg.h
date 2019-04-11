@@ -1,3 +1,6 @@
+#define	REG		0xCAFE0011
+#define MEM		0XCAFE0022
+
 #define SCR		0xDEAD0001
 #define TTBR0		0xDEAD0002
 #define TTBR1		0xDEAD0003

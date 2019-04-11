@@ -42,4 +42,4 @@ include_directories("include")
 
 add_executable(${PROJ_NAME} ${ASM_SRC} ${C_SRC})
 
-target_link_libraries(${PROJ_NAME} device dbg common arch dbg)
+target_link_libraries(${PROJ_NAME} device dbg common arch dbg device)
