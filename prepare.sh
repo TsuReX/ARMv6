@@ -1,39 +1,39 @@
-case $1 in
+CROSS_GCC=` basename $(find $1 -type f -name "*-gcc") `
+echo "CROSS_GCC is" $CROSS_GCC
+if [ -z "$CROSS_GCC" ] ;then
+	echo "Cross-gcc wasn't found"
+	return 1
+fi
 
-	2)
-		export ARMTOOL=/home/vasily/workspace/tools/arm-bcm2708/arm-bcm2708-linux-gnueabi/bin
-		export C_COMPILER_PREFIX=arm-bcm2708-linux-gnueabi
-		echo "ARMTOOL: ${ARMTOOL}"
-		echo "C_COMPILER_PREFIX: ${C_COMPILER_PREFIX}"
-		;;
+CROSS_GDB=` basename $(find $1 -type f -name "*-gdb") `
+echo "CROSS_GDB is" $CROSS_GDB
+if [ -z "$CROSS_GDB" ] ;then
+	echo "Cross-gdb wasn't found"
+	return 2
+fi
 
-	3)
-		export ARMTOOL=/home/vasily/workspace/tools/arm-bcm2708/arm-bcm2708hardfp-linux-gnueabi/bin
-		export C_COMPILER_PREFIX=arm-bcm2708hardfp-linux-gnueabi
-		echo "ARMTOOL: ${ARMTOOL}"
-		echo "C_COMPILER_PREFIX: ${C_COMPILER_PREFIX}"
-		;;
+CROSS_STRIP=` basename $(find $1 -type f -name "*-strip") `
+echo "CROSS_STRIP is" $CROSS_STRIP
+if [ -z "$CROSS_STRIP" ] ;then
+	echo "Cross-strip wasn't found"
+	return 3
+fi
 
-	*)
-		echo "Unknown compiler"
-		return 1
-		;;
-esac
-
-export PATH=$PATH:$ARMTOOL
+CROSS_TOOLS_DIR=$1
+echo "CROSS_TOOLS_DIR is" $CROSS_TOOLS_DIR
 
 rm -rf	./build
 mkdir	./build
 cp		.gdbinit	./build
 
 echo "#/bin/sh" 												>> ./build/build.sh
-echo "cmake ../bios/ -DCHECKING=1 -DPLATFORM=RASPBERRY_PI1 -DCMAKE_C_COMPILER=${ARMTOOL}/${C_COMPILER_PREFIX}-gcc "		>> ./build/build.sh
+echo "cmake ../bios/ -DCHECKING=1 -DPLATFORM=RASPBERRY_PI1 -DCMAKE_C_COMPILER=${CROSS_TOOLS_DIR}/${CROSS_GCC}"		>> ./build/build.sh
 echo "make"														>> ./build/build.sh
-echo "${ARMTOOL}/${C_COMPILER_PREFIX}-strip arm_bios.elf -o kernel.img"		>> ./build/build.sh
+echo "${CROSS_TOOLS_DIR}/${CROSS_STRIP} arm_bios.elf -o kernel.img"		>> ./build/build.sh
 chmod 0777 ./build/build.sh
 
 echo "#/bin/sh" 								>> ./build/debug.sh
-echo "${ARMTOOL}/${C_COMPILER_PREFIX}-gdb"		>> ./build/debug.sh
+echo "${CROSS_TOOLS_DIR}/${CROSS_GDB}"			>> ./build/debug.sh
 chmod 0777 										./build/debug.sh
 
 echo "#/bin/sh" 								>> ./build/run-qemu.sh
