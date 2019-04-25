@@ -90,7 +90,7 @@ entry:
 #endif
 
 	@ Print registers
-@	print_regs
+	print_regs
 
 	@ Setup default exceptions' handlers
 	setup_exc
