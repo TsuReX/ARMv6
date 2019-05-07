@@ -55,6 +55,10 @@ check_ccall:
 
 	@ Stack alignment case 1
 
+	@ 28 is incorrect value, 
+	@ it must be 32 - 4 arguments aligned by 8 bytes.
+	@ But this mistake was made especially 
+	@ for testing of stack alignment mechanism before function call.
 	ccall_prologue #28
 
 	@ Form first register arguments
