@@ -106,7 +106,4 @@ entry:
 	bl set_timer_value
 	bl enable_timer
 
-2:
-	b 2b
-	/* !!!!!!!!!!!!  */
-	ccall stub_func /* Important to be confident that project can be built with .S and .c files */
+	bl term_blink
