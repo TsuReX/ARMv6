@@ -1,18 +1,18 @@
-CROSS_GCC=` basename $(find $1 -type f -name "*-gcc") `
+CROSS_GCC=` basename $(find $1 -name "*-gcc") `
 echo "CROSS_GCC is" $CROSS_GCC
 if [ -z "$CROSS_GCC" ] ;then
 	echo "Cross-gcc wasn't found"
 	return 1
 fi
 
-CROSS_GDB=` basename $(find $1 -type f -name "*-gdb") `
+CROSS_GDB=` basename $(find $1 -name "*-gdb") `
 echo "CROSS_GDB is" $CROSS_GDB
 if [ -z "$CROSS_GDB" ] ;then
 	echo "Cross-gdb wasn't found"
 	return 2
 fi
 
-CROSS_STRIP=` basename $(find $1 -type f -name "*-strip") `
+CROSS_STRIP=` basename $(find $1 -name "*-strip") `
 echo "CROSS_STRIP is" $CROSS_STRIP
 if [ -z "$CROSS_STRIP" ] ;then
 	echo "Cross-strip wasn't found"

@@ -42,6 +42,18 @@
 .equ GPIO_25,		0x19
 .equ GPIO_27,		0x1B
 
+.equ LED_0,			0x11
+.equ LED_1,			0x18
+.equ LED_2,			0x1B
+.equ LED_3,			0x16
+.equ LED_4,			0x17
+.equ LED_5,			0x18
+.equ LED_6,			0x19
+.equ LED_7,			0x04
+
+.equ LED_ON,		0x01
+.equ LED_OFF,		0x00
+
 .equ UART_BASE,		0x20201000
 .equ UART_DR,		0x00
 .equ UART_RSECR,	0x04
