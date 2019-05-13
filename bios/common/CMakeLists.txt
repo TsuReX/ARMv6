@@ -6,9 +6,10 @@ set(PROJ_NAME common)
 
 project(${PROJ_NAME})
 
-set(C_SRC	
+set(C_SRC
 		stub.c
 		ccalltest.c
+		post.c
 		)
 
 set(ASM_SRC
