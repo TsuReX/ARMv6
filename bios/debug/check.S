@@ -1,4 +1,5 @@
 #include "basemacro.S"
+#include "assert.S"
 
 .global check
  
@@ -202,6 +203,13 @@ check_memcpy:
 do_checking:
 
 	save
+
+	@ Check ASSERT_POST
+	ldr r0, =0x123
+	@ASSERT_POST R0 CMP_VAL EQ_VAL NEQ_VAL STOP
+	ASSERT_POST r0 0x123 0x0A 0x05 1
+	ASSERT_POST r0 0x124 0x0A 0x05 1
+	ASSERT_POST r0 0x123 0x0A 0x05 0
 
 	@ Check ccall macro
 	bl check_ccall

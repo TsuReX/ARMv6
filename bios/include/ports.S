@@ -42,6 +42,8 @@
 .equ GPIO_25,		0x19
 .equ GPIO_27,		0x1B
 
+.equ ASSERT_GPIO_NUM,	0x04
+
 .equ LED_0,			0x11
 .equ LED_1,			0x18
 .equ LED_2,			0x1B
