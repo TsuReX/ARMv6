@@ -8,40 +8,6 @@
 .equ USR_MODE,		0x10 /* 0b10000 */
 .equ MON_MODE,		0x16 /* 0b10110 */
 
-/*#ifdef PLAT /**/
-#ifdef RASPBERRY_PI1
-.equ GPIO_BASE, 	0x20200000 /* RaspberryPi 1 */
-#elif TEST_BOARD
-.equ GPIO_BASE,		0x00009000
-#else /* VERSATILE_PB */
-.equ GPIO_BASE, 	0x101E4000 /* Versatile/PB  */
-#endif
-
-.equ GPIO_GPFSEL0,	0x00
-.equ GPIO_GPFSEL1,	0x04
-.equ GPIO_GPSET0,	0x1C
-.equ GPIO_GPSET1,	0x20
-.equ GPIO_GPCLR0,	0x28
-.equ GPIO_GPCLR1,	0x2C
-.equ GPIO_GPLEV0,	0x34
-.equ GPIO_GPLEV1,	0x38
-
-.equ GPIO_IN,		0x00 /* 0b000 */
-.equ GPIO_OUT,		0x01 /* 0b001 */
-.equ GPIO_ALT0,		0x04 /* 0b100 */
-.equ GPIO_ALT1,		0x05 /* 0b101 */
-.equ GPIO_ALT2,		0x06 /* 0b110 */
-.equ GPIO_ALT3,		0x07 /* 0b111 */
-.equ GPIO_ALT4,		0x03 /* 0b011 */
-.equ GPIO_ALT5,		0x02 /* 0b010 */
-
-.equ GPIO_16,		0x10
-.equ GPIO_22,		0x16
-.equ GPIO_23,		0x17
-.equ GPIO_24,		0x18
-.equ GPIO_25,		0x19
-.equ GPIO_27,		0x1B
-
 .equ ASSERT_GPIO_NUM,	0x04
 
 .equ LED_0,			0x11

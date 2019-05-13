@@ -1,6 +1,6 @@
 #include "ports.S"
 
-.global set_gpio_val, inv_gpio_val, get_gpio_val, set_gpio_mode
+.global gpio_get, gpio_set, gpio_inv, gpio_set_mode
 
 .text
 
@@ -10,7 +10,7 @@
  *		r1 - Value (0 or 1) to be set
  * Return:	r0 - Error number (TODO)
  */
-set_gpio_val:
+gpio_set:
 
 	stmdb sp!, {r2-r6, lr}
 	sub sp, sp, #0x4
@@ -56,7 +56,7 @@ set_gpio_val:
  * Input:	r0 - GPIO number
  * Return:	r0 - Error number (TODO)
  */
-inv_gpio_val:
+gpio_inv:
 
 	stmdb sp!, {r2-r6, lr}
 	sub sp, sp, #0x4
@@ -104,7 +104,7 @@ inv_gpio_val:
  * Return:	r0 - Error number (TODO)
  * 		r1 - Value (0 or 1)
  */
-get_gpio_val:
+gpio_get:
 
 	stmdb sp!, {r2-r4, lr}
 	sub sp, sp, #0x4
@@ -144,7 +144,7 @@ get_gpio_val:
  *		r1 - Function's number to be set
  * Return:	r0 - Error number (TODO)
  */
-set_gpio_mode:
+gpio_set_mode:
 
 	stmdb sp!, {r2-r5, lr}
 	sub sp, sp, #0x4
