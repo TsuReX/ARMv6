@@ -11,8 +11,8 @@ set(C_SRC
 
 set(ASM_SRC
 		gpio.S
-		gpiotest.S
-		leds.S
+#		gpiotest.S
+		term_blink.S
 		systimer.S
 		timer.S
 		uart.S

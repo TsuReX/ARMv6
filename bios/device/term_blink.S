@@ -1,0 +1,46 @@
+#include <ports.S>
+#include <leds.S>
+#include <delay.S>
+
+.global term_blink
+
+.equ 	DELAY_TIME, 5000000
+
+.macro BLINK_LED NUM DEL_TIME
+
+	DELAY \DEL_TIME
+
+	LED \NUM, ON
+
+	DELAY \DEL_TIME
+
+	LED \NUM, OFF
+
+.endm @ led
+
+.text
+
+/*
+ *
+ */
+term_blink:
+
+	LED LED_0, OFF
+	LED LED_2, OFF
+	LED LED_3, OFF
+	LED LED_4, OFF
+	LED LED_5, OFF
+	LED LED_6, OFF
+	LED LED_7, OFF
+
+1:
+	BLINK_LED LED_0, DELAY_TIME
+	BLINK_LED LED_1, DELAY_TIME
+	BLINK_LED LED_2, DELAY_TIME
+	BLINK_LED LED_3, DELAY_TIME
+	BLINK_LED LED_4, DELAY_TIME
+	BLINK_LED LED_5, DELAY_TIME
+	BLINK_LED LED_6, DELAY_TIME
+	BLINK_LED LED_7, DELAY_TIME
+
+	b 1b

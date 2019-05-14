@@ -1,5 +1,5 @@
-#include "ports.S"
-
+#include <ports.S>
+#include <gpio.S>
 .global setup_uart, uart_recv, uart_send, uart_test, uart_send4
 
 .text
@@ -17,11 +17,11 @@ setup_uart:
 	@ GPIO alt function 0(0b100) for 14 and 15 
 	
 	ldr r0, =GPIO_BASE		@ GPIO base address
-	ldr r1, =((GPIO_ALT0 << 15) | (GPIO_ALT0 << 12))	@ GPIO_ALT0 mode for 14 and 15 pins
+	ldr r1, =((GPIO_MODE_ALT0 << 15) | (GPIO_MODE_ALT0 << 12))	@ GPIO_ALT0 mode for 14 and 15 pins
 	
-	ldr r2, [r0, #GPIO_GPFSEL1]	@ GPIO function select 1
+	ldr r2, [r0, #GPIO_REG_GPFSEL1]	@ GPIO function select 1
 	orr r2, r2, r1			@ Change state only for 14 and 15 GPIOs
-	str r2, [r0, #GPIO_GPFSEL1]	@ Enable function 0 for GPIO 14 and 15
+	str r2, [r0, #GPIO_REG_GPFSEL1]	@ Enable function 0 for GPIO 14 and 15
 	
 	@ Setup UART on 14(TX) and 15(RX) GPIOs
 	

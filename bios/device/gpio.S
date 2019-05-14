@@ -1,4 +1,5 @@
-#include "ports.S"
+#include <ports.S>
+#include <gpio.S>
 
 .global gpio_get, gpio_set, gpio_inv, gpio_set_mode
 
@@ -25,8 +26,8 @@ gpio_set:
 	@ r2 - remaider; r3 - value to set;
 
 	ldr r0, =GPIO_BASE		@
-	add r4, r0, #GPIO_GPSET0	@ GPIO_SET_BASE
-	add r5, r0, #GPIO_GPCLR0	@ GPIO_CLEAR_BASE
+	add r4, r0, #GPIO_REG_GPSET0	@ GPIO_SET_BASE
+	add r5, r0, #GPIO_REG_GPCLR0	@ GPIO_CLEAR_BASE
 
 	@ r0 - free;
 
@@ -71,8 +72,8 @@ gpio_inv:
 	@ r2 - remaider; r3 - value to set;
 
 	ldr r0, =GPIO_BASE		@
-	add r4, r0, #GPIO_GPSET0	@ GPIO_SET_BASE
-	add r5, r0, #GPIO_GPCLR0	@ GPIO_CLEAR_BASE
+	add r4, r0, #GPIO_REG_GPSET0	@ GPIO_SET_BASE
+	add r5, r0, #GPIO_REG_GPCLR0	@ GPIO_CLEAR_BASE
 
 	@ r0 - free;
 
@@ -118,7 +119,7 @@ gpio_get:
 	@ r2 - remaider;
 
 	ldr r0, =GPIO_BASE		@
-	add r3, r0, #GPIO_GPLEV0	@ GPIO_READ_BASE
+	add r3, r0, #GPIO_REG_GPLEV0	@ GPIO_READ_BASE
 
 	@ r0 - free;
 
@@ -159,7 +160,7 @@ gpio_set_mode:
 	@ r2 - remaider; r3 - value to set;
 
 	ldr r0, =GPIO_BASE		@
-	add r4, r0, #GPIO_GPFSEL0	@ GPIO_FUNC_BASE
+	add r4, r0, #GPIO_REG_GPFSEL0	@ GPIO_FUNC_BASE
 
 	@ r0 - free;
 

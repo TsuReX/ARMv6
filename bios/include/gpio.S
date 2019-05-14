@@ -43,19 +43,31 @@
 .equ _GPIO_25,				0x19
 .equ _GPIO_27,				0x1B
 
-.equ GPIO_IN_0				_GPIO_02
-.equ GPIO_IN_1				_GPIO_03
+.equ GPIO_IN_0,				_GPIO_02
+.equ GPIO_IN_1,				_GPIO_03
 
-.equ GPIO_IN_0				_GPIO_03
-.equ GPIO_IN_1				_GPIO_03
-.equ GPIO_IN_2				_GPIO_03
-.equ GPIO_IN_3				_GPIO_03
-.equ GPIO_IN_4				_GPIO_03
-.equ GPIO_IN_5				_GPIO_03
-.equ GPIO_IN_6				_GPIO_03
-.equ GPIO_IN_7				_GPIO_03
+.equ GPIO_OUT_0,				_GPIO_03
+.equ GPIO_OUT_1,				_GPIO_03
+.equ GPIO_OUT_2,				_GPIO_03
+.equ GPIO_OUT_3,				_GPIO_03
+.equ GPIO_OUT_4,				_GPIO_03
+.equ GPIO_OUT_5,				_GPIO_03
+.equ GPIO_OUT_6,				_GPIO_03
+.equ GPIO_OUT_7,				_GPIO_03
 
 
 .macro GPIO_GET GPIO_NUM DST_REG
+	@ TODO
+.endm
+
+.macro GPIO_SET_V GPIO_NUM VAL
+	@ TODO
+.endm
+
+.macro GPIO_SET_R GPIO_NUM REG
+	@ TODO
+.endm
+
+.macro GPIO_SET_MODE GPIO_NUM DST_REG
 	@ TODO
 .endm
