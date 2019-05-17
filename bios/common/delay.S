@@ -1,4 +1,4 @@
-.global delay
+.global delay_cycle
 
 .text
 
@@ -7,7 +7,7 @@
  * Input: r0 - count of waiting cylcles
  * Output:
  */
-delay:
+delay_cycle:
 	str r1, [sp], #-0x4
 
 	mov r1, r0

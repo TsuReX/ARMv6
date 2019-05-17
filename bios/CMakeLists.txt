@@ -25,6 +25,12 @@ if (DEFINED CHECKING)
 	message ("-- MSG: Checking mechanisms are activated")
 endif()
 
+if (DEFINED ASSERT)
+	set (ASSERT "ASSERT")
+	add_definitions(-D${ASSERT})
+	message ("-- MSG: ASSERT mechanisms are activated")
+endif()
+
 set( CMAKE_EXECUTABLE_SUFFIX .elf )
 set( CMAKE_EXE_LINKER_FLAGS "-T ${CMAKE_CURRENT_SOURCE_DIR}/map.ld -nostdlib")
 

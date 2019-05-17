@@ -1,4 +1,4 @@
 .macro DELAY DELAY_TIME
 	ldr r0, =\DELAY_TIME
-	bl delay
+	bl delay_cycle
 .endm

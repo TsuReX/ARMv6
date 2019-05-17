@@ -1,6 +1,10 @@
 #include "post.S"
 #include "ports.S"
 #include "gpio.S"
+#include "delay.S"
+
+.equ STOP,		0x1
+.equ NOSTOP,	0x0
 
 /*
  *
@@ -9,22 +13,21 @@
 
 #ifdef ASSERT
 
-	ldr r4, =CMP_VAL
+	ldr r4, =\CMP_VAL
 	cmp \R0, r4
-	bne ne
+	bne 4f
 
-eq:
 	@ R0 and CMP_VAL are equal
-	POST EQ_VAL
+	POST \EQ_VAL
 
 	b 1f
 
-ne:
+4:
 	@ R0 and CMP_VAL aren't equal
-	POST NEQ_VAL
+	POST \NEQ_VAL
 
 1:
-	ldr r4, =STOP
+	ldr r4, =\STOP
 	mov r5, #0x1
 	cmp r4, r5
 	bne 2f

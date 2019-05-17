@@ -27,7 +27,7 @@ mkdir	./build
 cp		.gdbinit	./build
 
 echo "#/bin/sh" 												>> ./build/build.sh
-echo "cmake ../bios/ -DCHECKING=1 -DPLATFORM=RASPBERRY_PI1 -DCMAKE_C_COMPILER=${CROSS_TOOLS_DIR}/${CROSS_GCC}"		>> ./build/build.sh
+echo "cmake ../bios/ -DASSERT=1 -DCHECKING=1 -DPLATFORM=RASPBERRY_PI1 -DCMAKE_C_COMPILER=${CROSS_TOOLS_DIR}/${CROSS_GCC}"		>> ./build/build.sh
 echo "make"														>> ./build/build.sh
 echo "${CROSS_TOOLS_DIR}/${CROSS_STRIP} arm_bios.elf -o kernel.img"		>> ./build/build.sh
 chmod 0777 ./build/build.sh

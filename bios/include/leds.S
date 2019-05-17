@@ -16,6 +16,6 @@
 
 	mov r0, #\NUM
 	mov r1, #\VAL
-	bl set_gpio_val	
+	bl gpio_set
 
 .endm @ LED

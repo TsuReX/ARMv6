@@ -51,7 +51,6 @@ memtest_region_end:
 .text
 
 check_ccall:
-
 	save
 
 	@ Stack alignment case 1
@@ -123,13 +122,12 @@ failed2:
 
 ok:
 	add sp, #0x4
-	restore
-	mov pc, lr
 
-@ check_ccall
+	restore
+	return
+@check_ccall
 
 check_irq_vec:
-
 	save
 
 	mov r0, #0x0
@@ -161,7 +159,7 @@ check_memcpy:
 	ccall memfillinc
 	ccall_epilogue
 
-@***************************************
+@***************************
 @ Copying case 1
 
 	ccall_prologue #0
@@ -178,7 +176,7 @@ check_memcpy:
 	ccall memcpy
 	ccall_epilogue
 
-@***************************************
+@***************************
 @ Copying case 2
 
 	ccall_prologue #0
@@ -196,35 +194,94 @@ check_memcpy:
 	ccall_epilogue
 
 	restore
-	mov pc, lr
+	return
+@check_memcpy
 
-@ check_memcpy
+.equ VAL1,		0x1
+.equ VAL2,		0x2
+.equ VAL3,		0x4
+.equ R0, 		r0
+.equ CMP_VAL1, 	0x1
+.equ CMP_VAL2, 	0x3
+.equ CMP_VAL3, 	0x4
+.equ EQ_VAL1,	0xA
+.equ EQ_VAL2,	0xB
+.equ NEQ_VAL,	0xC
 
-do_checking:
-
+do_check_assert:
 	save
 
-	@ Check ASSERT_POST
-	ldr r0, =0x123
-	@ASSERT_POST R0 CMP_VAL EQ_VAL NEQ_VAL STOP
-	ASSERT_POST r0 0x123 0x0A 0x05 1
-	ASSERT_POST r0 0x124 0x0A 0x05 1
-	ASSERT_POST r0 0x123 0x0A 0x05 0
+@ 1	Should display EQ_VAL1 and stop
+	ldr r0, =VAL1
+	ASSERT_POST R0 CMP_VAL1 EQ_VAL1 NEQ_VAL STOP
 
-	@ Check ccall macro
-	bl check_ccall
+@ 2	Should display NEQ_VAL and stop
+	ldr r0, =VAL2
+	ASSERT_POST R0 CMP_VAL2 EQ_VAL1 NEQ_VAL STOP
 
-	bl check_memcpy
+@ 3	Should display EQ_VAL2 and not stop
+	ldr r0, =VAL2
+	ASSERT_POST R0 CMP_VAL3 EQ_VAL2 NEQ_VAL NOSTOP
 
-	@ Check UART manipulation functions
-	bl uart_test
-
-	@ Check GPIO manipulation functions
-	@ bl gpio_test
+	DELAY 10000000
 
 	restore
-	mov pc, lr
+	return
+@do_check_assert
 
+do_check_post:
+	save
+	POST 0x1
+	DELAY 10000000
+
+	POST 0x2
+	DELAY 10000000
+
+	POST 0x4
+	DELAY 10000000
+
+	POST 0x8
+	DELAY 10000000
+
+	POST 0x10
+	DELAY 10000000
+
+	POST 0x20
+	DELAY 10000000
+
+	POST 0x40
+	DELAY 10000000
+
+	POST 0x80
+	DELAY 10000000
+
+	POST 0xFF
+	DELAY 10000000
+
+	restore
+	return
+@do_check_post
+
+do_checking:
+	save
+
+@ 0 Check post
+	bl do_check_post
+
+@ 1 Check ASSERT_POST
+	bl do_check_assert
+
+@ 2 Check ccall macro
+	bl check_ccall
+
+@ 3 Check memcpy
+	bl check_memcpy
+
+@ 4 Check UART manipulation functions
+	bl uart_test
+
+	restore
+	return
 @do_checking
 
 check:
@@ -233,4 +290,5 @@ check:
 	bl do_checking
 
 	restore
-	mov pc, lr
+	return
+@check
