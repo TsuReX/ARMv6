@@ -24,7 +24,7 @@ void led(uint32_t led_num, uint32_t on) {
 void gpio_post(uint32_t post_val) {
 
 	uint32_t i = 0;
-	uint32_t map[GPIO_POST_BIT_COUNT] = {0, 1, 2, 3, 4, 5, 6, 7};
+	uint32_t map[GPIO_POST_BIT_COUNT] = {0, 1, 2, 3};
 	for(; i < GPIO_POST_BIT_COUNT; ++i) {
 		led(map[i], (post_val >> i) & 1);
 	}

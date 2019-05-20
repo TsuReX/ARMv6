@@ -13,8 +13,14 @@
 
 .global entry
 
-.macro setup_stacks
+.text
 
+/*
+ * Entry point
+ */
+entry:
+
+@1	@ The system is now in Supervisor mode
 	@ Setup stacks pointer for all Operating modes
 	@cps #SVC_MODE		@ Its unnecessary operation
 	ldr sp, = __svc_stack	@ Supervisor
@@ -32,58 +38,6 @@
 #endif
 	cps #SYS_MODE
 	ldr sp, = __sys_stack	@ System
-
-.endm @ setup_stacks
-
-.macro print_regs
-
-	bl print_cpsr
-	bl print_spsr
-	bl print_scr
-	bl print_tcmsr
-	bl print_midr
-	bl print_ctr
-
-.endm @ print_regs
-
-.macro setup_exc
-
-	@ Setup exceptions vector to 0x0
-	mov r0, #0x0
-	bl place_exc_vector
-
-	ldr r0, =undef_handler
-	bl setup_undef_handler
-
-	ldr r0, =svc_smc_handler
-	bl setup_svc_smc_handler
-
-	ldr r0, =pabt_handler
-	bl setup_pabt_handler
-
-	ldr r0, =dabt_handler
-	bl setup_dabt_handler
-
-	ldr r0, =irq_handler
-	bl setup_irq_handler
-
-	ldr r0, =fiq_handler
-	bl setup_fiq_handler
-
-	@ TODO Enable exceptions
-	bl enable_irq @ TODO What does it do?
-
-.endm
-
-.text
-
-/*
- * Entry point
- */
-entry:
-
-@1	@ The system is now in Supervisor mode
-	setup_stacks
 	@ The system now is in System mode - working mode
 
 	@ Setup GPIO ports for RPi-B
@@ -92,22 +46,5 @@ entry:
 #ifdef CHECKING
 	bl check
 #endif
-
-	@ Print registers
-	print_regs
-
-	@ Setup default exceptions' handlers
-	setup_exc
-
-1:
-	b 1b
-	@ Check timer
-
-	bl enable_irq
-	bl enable_timer_irq
-	bl setup_timer
-	ldr r0, =0xFFFF
-	bl set_timer_value
-	bl enable_timer
 
 	bl term_blink
