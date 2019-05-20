@@ -1,5 +1,6 @@
-#include "ports.S"
-#include "basemacro.S"
+#include <ports.S>
+#include <basemacro.S>
+#include <gpio_rpib.inc.S>
 
 /* .include "ports.S"
  * This construction shouldn't be used.
@@ -84,6 +85,9 @@ entry:
 @1	@ The system is now in Supervisor mode
 	setup_stacks
 	@ The system now is in System mode - working mode
+
+	@ Setup GPIO ports for RPi-B
+	bl gpio_init_rpib
 
 #ifdef CHECKING
 	bl check

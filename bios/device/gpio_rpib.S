@@ -1,9 +1,62 @@
-#include <ports.S>
-#include <gpio.S>
+#include <gpio_rpib.inc.S>
+#include <basemacro.S>
 
-.global gpio_get, gpio_set, gpio_inv, gpio_set_mode
+.global gpio_init_rpib, gpio_get, gpio_set, gpio_inv, gpio_set_mode
 
 .text
+
+/*
+ * Set functions for all (used) ports with respect to board's pinout
+ * and targets
+ */
+gpio_init_rpib:
+	save
+
+	mov r0, #GPIO_IN_0
+	mov r1, #GPIO_MODE_IN
+	bl gpio_set_mode
+
+	mov r0, #GPIO_IN_1
+	mov r1, #GPIO_MODE_IN
+	bl gpio_set_mode
+
+	mov r0, #GPIO_OUT_0
+	mov r1, #GPIO_MODE_OUT
+	bl gpio_set_mode
+
+	mov r0, #GPIO_OUT_1
+	mov r1, #GPIO_MODE_OUT
+	bl gpio_set_mode
+
+	mov r0, #GPIO_OUT_2
+	mov r1, #GPIO_MODE_OUT
+	bl gpio_set_mode
+
+	mov r0, #GPIO_OUT_3
+	mov r1, #GPIO_MODE_OUT
+	bl gpio_set_mode
+
+	mov r0, #GPIO_OUT_4
+	mov r1, #GPIO_MODE_OUT
+	bl gpio_set_mode
+
+	mov r0, #GPIO_OUT_5
+	mov r1, #GPIO_MODE_OUT
+	bl gpio_set_mode
+
+	mov r0, #GPIO_OUT_6
+	mov r1, #GPIO_MODE_OUT
+	bl gpio_set_mode
+
+	mov r0, #GPIO_OUT_7
+	mov r1, #GPIO_MODE_OUT
+	bl gpio_set_mode
+
+	@ TODO Initialize GPIO ports for other devices - UART, I2C e.t.c
+
+	restore
+	return
+@gpio_init_rpib
 
 /*
  * Set value for specified number GPIO
@@ -114,7 +167,7 @@ gpio_get:
 	bl uidiv_1			@ r1 = r0 div r1; r2 = r0 mod r1; r0 = error
 	cmp r0, #0x0			@ check error
 	bne 1f				@ go exit in case of error occurence
-	
+
 	@ r0 - free; r1 - integer part;
 	@ r2 - remaider;
 

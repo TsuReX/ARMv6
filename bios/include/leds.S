@@ -1,4 +1,4 @@
-#include <gpio.S>
+#include <gpio_rpib.inc.S>
 
 .equ LED_0,			GPIO_OUT_0
 .equ LED_1,			GPIO_OUT_1

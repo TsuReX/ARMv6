@@ -46,15 +46,17 @@
 .equ GPIO_IN_0,				_GPIO_02
 .equ GPIO_IN_1,				_GPIO_03
 
-.equ GPIO_OUT_0,				_GPIO_03
-.equ GPIO_OUT_1,				_GPIO_03
-.equ GPIO_OUT_2,				_GPIO_03
-.equ GPIO_OUT_3,				_GPIO_03
-.equ GPIO_OUT_4,				_GPIO_03
-.equ GPIO_OUT_5,				_GPIO_03
-.equ GPIO_OUT_6,				_GPIO_03
-.equ GPIO_OUT_7,				_GPIO_03
+.equ GPIO_OUT_0,			_GPIO_03
+.equ GPIO_OUT_1,			_GPIO_03
+.equ GPIO_OUT_2,			_GPIO_03
+.equ GPIO_OUT_3,			_GPIO_03
+.equ GPIO_OUT_4,			_GPIO_03
+.equ GPIO_OUT_5,			_GPIO_03
+.equ GPIO_OUT_6,			_GPIO_03
+.equ GPIO_OUT_7,			_GPIO_03
 
+.equ UART_0_TX,				_GPIO_03
+.equ UART_0_RX,				_GPIO_04
 
 .macro GPIO_GET GPIO_NUM DST_REG
 	@ TODO

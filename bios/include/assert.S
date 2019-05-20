@@ -1,6 +1,6 @@
 #include "post.S"
 #include "ports.S"
-#include "gpio.S"
+#include "gpio_rpib.inc.S"
 #include "delay.S"
 
 .equ STOP,		0x1

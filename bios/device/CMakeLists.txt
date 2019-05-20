@@ -10,7 +10,7 @@ set(C_SRC
 		)
 
 set(ASM_SRC
-		gpio.S
+		gpio_rpib.S
 #		gpiotest.S
 		term_blink.S
 		systimer.S
