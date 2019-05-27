@@ -8,8 +8,6 @@
 .equ USR_MODE,		0x10 /* 0b10000 */
 .equ MON_MODE,		0x16 /* 0b10110 */
 
-.equ ASSERT_GPIO_NUM,	0x04
-
 .equ UART_BASE,		0x20201000
 .equ UART_DR,		0x00
 .equ UART_RSECR,	0x04

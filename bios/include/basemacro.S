@@ -1,3 +1,5 @@
+#ifndef _BASEMACRO
+#define _BASEMACRO
 
 .macro save
 	stmdb sp!, {r0-r12,lr}
@@ -40,3 +42,5 @@
 .macro ccall_epilogue
 	mov sp, r11
 .endm
+
+#endif /* _BASEMACRO */

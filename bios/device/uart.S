@@ -1,5 +1,6 @@
 #include <ports.S>
 #include <gpio_rpib.inc.S>
+
 .global setup_uart, uart_recv, uart_send, uart_test, uart_send4
 
 .text
@@ -14,17 +15,6 @@ setup_uart:
 	str r1, [r13], #-0x4
 	str r2, [r13], #-0x4
 
-	@ GPIO alt function 0(0b100) for 14 and 15 
-	
-	ldr r0, =GPIO_BASE		@ GPIO base address
-	ldr r1, =((GPIO_MODE_ALT0 << 15) | (GPIO_MODE_ALT0 << 12))	@ GPIO_ALT0 mode for 14 and 15 pins
-	
-	ldr r2, [r0, #GPIO_REG_GPFSEL1]	@ GPIO function select 1
-	orr r2, r2, r1			@ Change state only for 14 and 15 GPIOs
-	str r2, [r0, #GPIO_REG_GPFSEL1]	@ Enable function 0 for GPIO 14 and 15
-	
-	@ Setup UART on 14(TX) and 15(RX) GPIOs
-	
 	ldr r0, =UART_BASE 		@
 
 	mov r1, #0x0
@@ -41,7 +31,7 @@ setup_uart:
 
 	mov r1, #0x70			@ Set 1 into 4,5,6 bits
 	str r1, [r0, #UART_LCRH]	@ Setup FIFO enabled and 8bit data length
-	
+
 	ldr r1, =0x7F2			@ Set 1 into 1,4-10 bits
 	str r1, [r0, #UART_IMSC]	@ Mask all interrupts
 

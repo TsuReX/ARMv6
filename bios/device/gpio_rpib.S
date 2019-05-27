@@ -5,11 +5,7 @@
 
 .text
 
-/*
- * Set functions for all (used) ports with respect to board's pinout
- * and targets
- */
-gpio_init_rpib:
+init_gpio_in:
 	save
 
 	mov r0, #GPIO_IN_0
@@ -19,6 +15,13 @@ gpio_init_rpib:
 	mov r0, #GPIO_IN_1
 	mov r1, #GPIO_MODE_IN
 	bl gpio_set_mode
+
+	restore
+	return
+@init_gpio_in
+
+init_gpio_out:
+	save
 
 	mov r0, #GPIO_OUT_0
 	mov r1, #GPIO_MODE_OUT
@@ -52,7 +55,39 @@ gpio_init_rpib:
 	mov r1, #GPIO_MODE_OUT
 	bl gpio_set_mode
 
-	@ TODO Initialize GPIO ports for other devices - UART, I2C e.t.c
+	restore
+	return
+@init_gpio_out
+
+init_uart0:
+	save
+
+	mov r0, #UART_0_TX
+	mov r1, #GPIO_MODE_ALT0
+	bl gpio_set_mode
+
+	mov r0, #UART_0_RX
+	mov r1, #GPIO_MODE_ALT0
+	bl gpio_set_mode
+
+	restore
+	return
+@init_uart0
+
+/*
+ * Set functions for all (used) ports with respect to board's pinout
+ * and targets
+ */
+gpio_init_rpib:
+	save
+
+	bl init_gpio_in
+
+	bl init_gpio_out
+
+	bl init_uart0
+
+	@ TODO Initialize GPIO ports for other devices - I2C e.t.c
 
 	restore
 	return

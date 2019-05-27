@@ -1,11 +1,12 @@
 #include "post.S"
 #include "ports.S"
 #include "gpio_rpib.inc.S"
+#include "gpio_io.inc.S"
 #include "delay.S"
 
-.equ STOP,		0x1
-.equ NOSTOP,	0x0
-
+.equ STOP,				0x1
+.equ NOSTOP,			0x0
+.equ ASSERT_GPIO_NUM,	GPIO_IN_0
 /*
  *
  */
