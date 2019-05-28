@@ -34,7 +34,7 @@
 	bne 2f
 
 3:
-	GPIO_GET ASSERT_GPIO_NUM r5
+	GPIO_GET #ASSERT_GPIO_NUM r5
 	mov r4, #0x1
 	cmp r5, r4
 	beq 2f
