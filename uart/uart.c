@@ -6,8 +6,9 @@
 #include <termios.h>//Used for UART
 #include <stdlib.h>
 #include <signal.h>
+#include <string.h>
 
-#include "printregs.h"
+//#include "printregs.h"
 
 typedef struct {
 	uint32_t crc16;
@@ -46,11 +47,11 @@ void handleSignal(int32_t sigNum) {
 	
 	switch (sigNum) {
 		case SIGINT:
-		printf("Someone wants to stop application\n");
+		printf("\nSomeone wants to stop application\n");
 		exit_flag = 1;
 		break;
 	default:
-		printf("Unregistered signal received: %d\n", sigNum);
+		printf("\nUnregistered signal received: %d\n", sigNum);
 		exit(-1);
 		break;
 	}
@@ -79,25 +80,70 @@ uint16_t calc_crc16 (uint8_t *buffer, uint32_t size)
 	return crc;
 }
 
+int32_t send_data(int32_t file_descr, uint32_t size, uint8_t* buffer) {
+
+	int32_t ret_val = 0;
+    uint32_t count = 0;
+    uint32_t sent_bytes = 0;
+
+	if (buffer == NULL)
+		return -3;
+
+	do {
+		printf("Sending\n");
+        ret_val = write(file_descr, (void*)(buffer + sent_bytes), size - sent_bytes);
+	    if (ret_val < 0) {
+		    if (errno == EAGAIN) {
+			    usleep(100000);
+                ++count;
+		    }else {
+				//An error occured (will occur if there are no bytes)
+				printf("Sending finished with error: %d\n", errno);
+				perror("Error:");
+				return -1;
+			}
+	    }
+        else if (ret_val == 0) {
+            // TODO
+            printf("ret_val == 0 !!!!!!!!!!!\n");
+            return -10;
+        }
+        else {
+            sent_bytes += ret_val;
+            count = 0;
+        }
+
+    } while (size != sent_bytes && count != STOP_TRIES);
+
+    if (count == STOP_TRIES) {
+        return sent_bytes;
+    }
+
+	return sent_bytes;
+}
+
 int32_t recv_data(int32_t file_descr, uint32_t size, uint8_t* buffer) {
     
     int32_t ret_val = 0;
     uint32_t count = 0;
     uint32_t recv_bytes = 0;
-	
+
 	if (buffer == NULL)
 		return -3;
-    
+
 	do {
+	//	printf("Reading fd=%d\n", file_descr);
         ret_val = read(file_descr, (void*)(buffer + recv_bytes), size - recv_bytes);
 	    if (ret_val < 0) {
 		    if (errno == EAGAIN) {
-			    usleep(300000);
+			    usleep(100000);
                 ++count;
-		    }
-		    //An error occured (will occur if there are no bytes)
-		    printf("Reading finished with error: %d\n", errno);
-		    return -1;
+		    } else if (errno != 0) {
+				//An error occured (will occur if there are no bytes)
+				printf("Reading finished with error: %d\n", errno);
+				perror("Error");
+				return -1;
+			}
 	    }
         else if (ret_val == 0) {
             // TODO
@@ -110,40 +156,12 @@ int32_t recv_data(int32_t file_descr, uint32_t size, uint8_t* buffer) {
         }
 
     } while (size != recv_bytes && count != STOP_TRIES);
-    
+
     if (count == STOP_TRIES) {
-        return -2;            
+        return recv_bytes;
     }
 
 	return recv_bytes;
-}
-
-int32_t check_header(header_t *header) {
-	
-	if (header == NULL)
-		return -2;
-	
-	if (header->crc16 == calc_crc16((uint8_t*)(header + sizeof(uint32_t)), sizeof(header_t))) {
-		return 0;
-	}
-	
-	return -1;
-}
-
-int32_t check_data(uint8_t *data, uint32_t size) {
-	
-	if (data == NULL)
-		return -3;
-	
-	if (size <= sizeof(uint32_t)){
-			return -2;
-	}
-	
-	if (*(uint32_t*)(data + size - sizeof(uint32_t)) == calc_crc16(data, size - sizeof(uint32_t))) {
-		return 0;
-	}
-	
-	return -1; 
 }
 
 int32_t main(uint32_t argc, char *argv[]) {
@@ -152,7 +170,6 @@ int32_t main(uint32_t argc, char *argv[]) {
 		printf("Invalid arguments count\n");
 		return 1;
 	}
-	
 
 	// O_NDELAY / O_NONBLOCK (same function) - Enables nonblocking mode. 
 	// When set read requests on the file can return immediately with a failure status
@@ -168,7 +185,7 @@ int32_t main(uint32_t argc, char *argv[]) {
 		printf("Error - Unable to open UART.  Ensure it is not in use by another application\n");
 		return 2;
 	}
-	
+//	fcntl(fd, F_SETFL, 0);
 	printf("Register stop handler\n");
 	
 	register_stop_handler();
@@ -180,50 +197,47 @@ int32_t main(uint32_t argc, char *argv[]) {
 	printf("Start reading\n");
 	
     int32_t ret_val = 0;
-	while (exit_flag == 0) {
-		header_t header;
-        ret_val = recv_data(fd, sizeof(header_t), (uint8_t*)&header);
-		
-		// TODO Handle broken connection error
-        if (ret_val != sizeof(header_t)) {
-            // usleep(300000); TODO           
-            continue;
-        }
-        
-        if (check_header(&header) != 0) {
-            continue;
-        }
-        
-        if (header.size == 0) {
-			// TODO correct output text
-            printf("header.size == 0\n");
-            continue;        
-        }
-        
-        uint8_t* data = (uint8_t*)malloc(header.size);
-        if (data == NULL) {
-			// TODO correct output text
-			printf("Not enough memory\n");
-			return -1;
-		}
-		
-        ret_val = recv_data(fd, header.size, (uint8_t*)data);
-        
-        if (ret_val != header.size) {
-            // usleep(300000); TODO          
-            free(data);            
-            continue;
-        }
-        
-        if (check_data(data, header.size) != 0) {
-            free(data);            
-            continue;
-        }
-        
-        process_data(data, header.size - sizeof(uint32_t));
-        
-        free(data);
 
+#define DATA_SIZE 64
+
+    char data[DATA_SIZE];
+	while (exit_flag == 0) {
+		memset(data, 0, DATA_SIZE);
+        ret_val = recv_data(fd, DATA_SIZE - 1, (uint8_t*)&data);	
+		if (ret_val > 0) {
+			//printf("Received data size: %d begin:%s:end\n", ret_val, data);
+			printf("%s", data);
+			
+		} else if (ret_val == 0) {
+			//printf("No data was received\n");
+			//usleep(100000);
+			continue;
+
+		} else if (ret_val < 0) {
+			printf("recv_data returned :%d\n", ret_val);
+			usleep(100000);
+			break;
+		}
+		ret_val = 0xFF;
+		
+		if(strstr(data, "MC_ALIVE") != NULL) {
+			char boot_mode1[] = "MC_BOOT_MODE_1\r\n";
+			ret_val = send_data(fd, strlen(boot_mode1), (uint8_t*)&boot_mode1);
+			printf("Status MC_ALIVE was received successfuly\n");
+			if (ret_val == strlen(boot_mode1))
+				printf("OK: Command MC_BOOT_MODE_1 was sent\n");
+			else
+				printf("ERROR: Command MC_BOOT_MODE_1 wasn't sent. ret_val=%d\n", ret_val);
+		}
+		if(strstr(data, "MC_AWAIT_SPI_CMD") != NULL) {
+			char spi_id[] = "MC_SPI_ID\r\n";
+			ret_val = send_data(fd, strlen(spi_id), (uint8_t*)&spi_id);
+			printf("Status MC_SPI_CMD_DONE was received successfuly\n");
+			if (ret_val == strlen(spi_id))
+				printf("OK: Command MC_SPI_ID was sent\n");
+			else
+				printf("ERROR: Command MC_SPI_ID wasn't sent. ret_val=%d\n", ret_val);
+		}
 	}
 	close(fd);
 	return 0;
