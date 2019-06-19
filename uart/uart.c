@@ -10,12 +10,13 @@
 
 //#include "printregs.h"
 
-typedef struct {
-	uint32_t crc16;
-	uint32_t size;
-} header_t;
+void process_data(char* data);
 
-const uint32_t STOP_TRIES = 10;
+#define STOP_TRIES	10
+#define DATA_SIZE	64
+
+uint32_t exit_flag = 0;
+int32_t fd = -1;
 
 int32_t configure_uart(int32_t fd) {
 
@@ -42,16 +43,15 @@ int32_t configure_uart(int32_t fd) {
 	return 0;
 }
 
-uint32_t exit_flag = 0;
 void handleSignal(int32_t sigNum) {
 	
 	switch (sigNum) {
 		case SIGINT:
-		printf("\nSomeone wants to stop application\n");
+		printf("\nEvent: Someone wants to stop application\n");
 		exit_flag = 1;
 		break;
 	default:
-		printf("\nUnregistered signal received: %d\n", sigNum);
+		printf("\nEvent: Unregistered signal received: %d\n", sigNum);
 		exit(-1);
 		break;
 	}
@@ -90,23 +90,24 @@ int32_t send_data(int32_t file_descr, uint32_t size, uint8_t* buffer) {
 		return -3;
 
 	do {
-		printf("Sending\n");
+
         ret_val = write(file_descr, (void*)(buffer + sent_bytes), size - sent_bytes);
+
 	    if (ret_val < 0) {
 		    if (errno == EAGAIN) {
 			    usleep(100000);
                 ++count;
-		    }else {
-				//An error occured (will occur if there are no bytes)
+		    } else {
+
 				printf("Sending finished with error: %d\n", errno);
-				perror("Error:");
+				perror("Error");
 				return -1;
 			}
 	    }
         else if (ret_val == 0) {
-            // TODO
-            printf("ret_val == 0 !!!!!!!!!!!\n");
-            return -10;
+            printf("Connection was closed\n");
+            perror("Cause");
+            return -2;
         }
         else {
             sent_bytes += ret_val;
@@ -132,23 +133,23 @@ int32_t recv_data(int32_t file_descr, uint32_t size, uint8_t* buffer) {
 		return -3;
 
 	do {
-	//	printf("Reading fd=%d\n", file_descr);
+
         ret_val = read(file_descr, (void*)(buffer + recv_bytes), size - recv_bytes);
+
 	    if (ret_val < 0) {
 		    if (errno == EAGAIN) {
-			    usleep(100000);
+			    usleep(10000);
                 ++count;
 		    } else if (errno != 0) {
-				//An error occured (will occur if there are no bytes)
+
 				printf("Reading finished with error: %d\n", errno);
 				perror("Error");
 				return -1;
 			}
 	    }
         else if (ret_val == 0) {
-            // TODO
-            printf("ret_val == 0 !!!!!!!!!!!\n");
-            return -10;
+            perror("Event");
+            return -2;
         }
         else {
             recv_bytes += ret_val;
@@ -166,6 +167,9 @@ int32_t recv_data(int32_t file_descr, uint32_t size, uint8_t* buffer) {
 
 int32_t main(uint32_t argc, char *argv[]) {
 
+	int32_t ret_val = 0;
+    char data[DATA_SIZE];
+
 	if (argc < 2) {
 		printf("Invalid arguments count\n");
 		return 1;
@@ -179,66 +183,89 @@ int32_t main(uint32_t argc, char *argv[]) {
 	// O_NOCTTY - When set and path identifies a terminal device, 
 	// open() shall not cause the terminal device to become the controlling terminal 
 	// for the process. 
-	int32_t fd = -1;
+
+	fd = -1;
 	fd = open(argv[1], O_RDWR | O_NOCTTY | O_NDELAY); // Open in non blocking read/write mode
+
 	if ( fd == -1 ) {
 		printf("Error - Unable to open UART.  Ensure it is not in use by another application\n");
 		return 2;
 	}
-//	fcntl(fd, F_SETFL, 0);
+
 	printf("Register stop handler\n");
-	
 	register_stop_handler();
-	
+
 	printf("Configure uart\n");
-	
 	configure_uart(fd);
 
 	printf("Start reading\n");
-	
-    int32_t ret_val = 0;
-
-#define DATA_SIZE 64
-
-    char data[DATA_SIZE];
 	while (exit_flag == 0) {
+
 		memset(data, 0, DATA_SIZE);
         ret_val = recv_data(fd, DATA_SIZE - 1, (uint8_t*)&data);	
+
 		if (ret_val > 0) {
-			//printf("Received data size: %d begin:%s:end\n", ret_val, data);
+
 			printf("%s", data);
+			process_data(data);
 			
 		} else if (ret_val == 0) {
-			//printf("No data was received\n");
-			//usleep(100000);
+
 			continue;
 
 		} else if (ret_val < 0) {
-			printf("recv_data returned :%d\n", ret_val);
-			usleep(100000);
 			break;
 		}
 		ret_val = 0xFF;
-		
-		if(strstr(data, "MC_ALIVE") != NULL) {
-			char boot_mode1[] = "MC_BOOT_MODE_1\r\n";
-			ret_val = send_data(fd, strlen(boot_mode1), (uint8_t*)&boot_mode1);
-			printf("Status MC_ALIVE was received successfuly\n");
-			if (ret_val == strlen(boot_mode1))
-				printf("OK: Command MC_BOOT_MODE_1 was sent\n");
-			else
-				printf("ERROR: Command MC_BOOT_MODE_1 wasn't sent. ret_val=%d\n", ret_val);
-		}
-		if(strstr(data, "MC_AWAIT_SPI_CMD") != NULL) {
-			char spi_id[] = "MC_SPI_ID\r\n";
-			ret_val = send_data(fd, strlen(spi_id), (uint8_t*)&spi_id);
-			printf("Status MC_SPI_CMD_DONE was received successfuly\n");
-			if (ret_val == strlen(spi_id))
-				printf("OK: Command MC_SPI_ID was sent\n");
-			else
-				printf("ERROR: Command MC_SPI_ID wasn't sent. ret_val=%d\n", ret_val);
-		}
 	}
+	printf("Connection was closed\n");
 	close(fd);
 	return 0;
+}
+
+void process_data(char* data) {
+
+	int32_t ret_val = 0;
+
+	if(strstr(data, "MC_ALIVE") != NULL) {
+		char boot_mode1[] = "MC_BOOT_MODE_1\r\n";
+		ret_val = send_data(fd, strlen(boot_mode1), (uint8_t*)&boot_mode1);
+		printf("Status MC_ALIVE was received successfuly\n");
+		if (ret_val == strlen(boot_mode1))
+			printf("OK: Command MC_BOOT_MODE_1 was sent\n");
+		else
+			printf("ERROR: Command MC_BOOT_MODE_1 wasn't sent. ret_val=%d\n", ret_val);
+	}
+
+	if(strstr(data, "MC_AWAIT_SPI_CMD") != NULL) {
+		char spi_id[] = "MC_SPI_DETECT\r\n";
+		ret_val = send_data(fd, strlen(spi_id), (uint8_t*)&spi_id);
+		printf("Status MC_SPI_CMD_DONE was received successfuly\n");
+		if (ret_val == strlen(spi_id))
+			printf("OK: Command MC_SPI_DETECT was sent\n");
+		else
+			printf("ERROR: Command MC_SPI_DETECT wasn't sent. ret_val=%d\n", ret_val);
+	}
+
+	if(strstr(data, "MC_SPI_FLASH_DETECTED 01 20 18 4D") != NULL) {
+		char spi_erase[] = "MC_SPI_ERASE\r\n";
+		ret_val = send_data(fd, strlen(spi_erase), (uint8_t*)&spi_erase);
+		printf("Status MC_SPI_FLASH_DETECTED was received successfuly\n");
+		if (ret_val == strlen(spi_erase))
+			printf("OK: Command MC_SPI_ERASE was sent\n");
+		else
+			printf("ERROR: Command MC_SPI_ERASE wasn't sent. ret_val=%d\n", ret_val);
+	}
+
+/*	if(strstr(data, "MC_SPI_ERASE_DONE") != NULL) {
+	char spi_erase[] = "MC_SPI_WRITE\r\n";
+	ret_val = send_data(fd, strlen(spi_id), (uint8_t*)&spi_id);
+	printf("Status MC_SPI_FLASH_DETECTED was received successfuly\n");
+	if (ret_val == strlen(spi_id))
+		printf("OK: Command MC_SPI_WRITE was sent\n");
+	else
+		printf("ERROR: Command MC_SPI_WRITE wasn't sent. ret_val=%d\n", ret_val);
+	}
+*/
+
 }
